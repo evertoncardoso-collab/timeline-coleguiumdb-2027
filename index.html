@@ -601,19 +601,14 @@
 
 let events = [];
 
-async function carregarEventosDoSupabase(){
-
+async function carregarEventosDoSupabase() {
     const { data, error } = await supabaseClient
         .from("eventos")
         .select("*")
         .order("data_inicio", { ascending: true });
 
-    if(error){
+    if (error) {
         console.error("❌ Erro ao carregar eventos:", error);
-
-        document.getElementById("timeline").innerHTML =
-            `<div class="empty">Não foi possível carregar os eventos.</div>`;
-
         return;
     }
 
@@ -629,13 +624,14 @@ async function carregarEventosDoSupabase(){
         type: row.tipo || ""
     }));
 
-    console.log(`✅ ${events.length} eventos carregados do Supabase`);
+    console.log(`✅ ${events.length} eventos carregados DIRETAMENTE do Supabase`);
 
     render();
 }
 
-
-/* temporariamente desativado.
+function save(){
+    // temporariamente desativado
+}
    Depois vamos substituir pelo salvamento no Supabase. */
 function save(){
 }
@@ -926,77 +922,7 @@ slider.addEventListener("mousemove",e=>{
 
 document.getElementById("cor-verde").checked = true;
 
-    if(false){
-
-/* ==========================================================
-   EVENTOS BASE 2027 — FERIADOS E DATAS COMEMORATIVAS
-   São inseridos apenas uma vez. Eventos já cadastrados pelo
-   usuário não são duplicados.
-   ========================================================== */
-
-const eventosBase2027 = [
-    // Feriados / pontos facultativos
-    {date:"2027-01-01", title:"Confraternização Universal / Ano Novo", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-02-08", title:"Segunda-feira de Carnaval", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Ponto facultativo / Carnaval."},
-    {date:"2027-02-09", title:"Carnaval", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Carnaval."},
-    {date:"2027-02-10", title:"Quarta-feira de Cinzas", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Ponto facultativo, conforme regras aplicáveis."},
-    {date:"2027-03-26", title:"Sexta-feira Santa / Paixão de Cristo", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-04-21", title:"Tiradentes", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-05-01", title:"Dia do Trabalho", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-05-27", title:"Corpus Christi", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Data religiosa / ponto facultativo conforme calendário aplicável."},
-    {date:"2027-09-07", title:"Independência do Brasil", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-10-12", title:"Nossa Senhora Aparecida", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-11-02", title:"Finados", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-11-15", title:"Proclamação da República", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-11-20", title:"Dia Nacional de Zumbi e da Consciência Negra", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-    {date:"2027-12-25", title:"Natal", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
-
-    // Datas comemorativas / educativas
-    {date:"2027-03-08", title:"Dia Internacional da Mulher", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#e91e63", description:"Data comemorativa."},
-    {date:"2027-03-15", title:"Dia do Consumidor", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00acc1", description:"Data comemorativa."},
-    {date:"2027-03-22", title:"Dia Mundial da Água", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data educativa e de conscientização ambiental."},
-    {date:"2027-03-28", title:"Páscoa", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Data comemorativa."},
-    {date:"2027-04-19", title:"Dia dos Povos Indígenas", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data educativa e cultural."},
-    {date:"2027-05-09", title:"Dia das Mães", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#e91e63", description:"Data comemorativa."},
-    {date:"2027-06-05", title:"Dia Mundial do Meio Ambiente", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de conscientização ambiental."},
-    {date:"2027-07-20", title:"Dia do Amigo", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data comemorativa."},
-    {date:"2027-08-08", title:"Dia dos Pais", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data comemorativa."},
-    {date:"2027-08-11", title:"Dia do Estudante", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data comemorativa escolar."},
-    {date:"2027-08-22", title:"Dia do Folclore", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data cultural e educativa."},
-    {date:"2027-09-05", title:"Dia da Amazônia", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de valorização e conscientização sobre a Amazônia."},
-    {date:"2027-09-08", title:"Dia Mundial da Alfabetização", category:"Data comemorativa", segments:["EFAI","EI"], color:"#00acc1", description:"Data educativa."},
-    {date:"2027-09-21", title:"Dia da Árvore", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de conscientização ambiental."},
-    {date:"2027-10-12", title:"Dia das Crianças", category:"Data comemorativa", segments:["EFAI","EI"], color:"#fb8c00", description:"Data comemorativa escolar."},
-    {date:"2027-10-15", title:"Dia do Professor", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Data comemorativa da educação."},
-    {date:"2027-10-29", title:"Dia Nacional do Livro", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data de incentivo à leitura."},
-    {date:"2027-11-19", title:"Dia da Bandeira", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data cívica."}
-];
-
-// Normaliza eventos antigos que usavam "segment" em vez de "segments".
-events = events.map(event => ({
-    ...event,
-    segments: event.segments || (event.segment ? [event.segment] : ["EM","EFAF","EFAI","EI"])
-}));
-
-let baseAdicionados = 0;
-eventosBase2027.forEach(base => {
-    const jaExiste = events.some(event =>
-        event.date === base.date && event.title === base.title
-    );
-
-    if (!jaExiste) {
-        events.push(base);
-        baseAdicionados++;
-    }
-});
-
-if (baseAdicionados > 0) {
-    save();
-}
-
-render();
-}
-
+   
 carregarEventosDoSupabase();
 </script>
 
