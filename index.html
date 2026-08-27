@@ -4,6 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Timeline Coleguium 2027</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = https://zvdbniuqpsoqmyyfeozt.supabase.co;
+  const SUPABASE_KEY = sb_publishable_PCKN-dhvkzcn7wPwaGEi_Q_X0z11xuL;
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function testarSupabase() {
+    const { data, error } = await supabaseClient
+      .from('eventos')
+      .select('*')
+      .order('data_inicio');
+
+    if (error) {
+      console.error('❌ Erro Supabase:', error);
+      return;
+    }
+
+    console.log('✅ SUPABASE CONECTADO!');
+    console.log('Eventos encontrados:', data);
+  }
+
+  testarSupabase();
+</script>
+    
 <style>
     :root{
         --verde:#35b86b;
