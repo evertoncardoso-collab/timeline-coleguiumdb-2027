@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline Coleguium 2027</title>
+<style>
+    :root{
+        --verde:#35b86b;
+        --verde-escuro:#16834a;
+        --cinza:#f4f6f5;
+        --texto:#24312a;
+        --linha:#cfd8d2;
+        --branco:#fff;
+        --vermelho:#e53935;
+        --laranja:#fb8c00;
+        --amarelo:#f9c000;
+        --verde-forte:#00a651;
+        --azul:#1976d2;
+        --roxo:#8e24aa;
+        --rosa:#e91e63;
+        --ciano:#00acc1;
+    }
+
+    *{box-sizing:border-box}
+    body{
+        margin:0;
+        font-family:Arial, Helvetica, sans-serif;
+        background:#f7f8f7;
+        color:var(--texto);
+    }
+
+    header{
+        background:linear-gradient(135deg,#16834a,#35b86b);
+        color:white;
+        padding:28px 5%;
+        box-shadow:0 4px 15px #0002;
+    }
+
+    header h1{margin:0 0 6px;font-size:30px}
+    header p{margin:0;opacity:.9}
+
+    .container{
+        width:min(1400px,94%);
+        margin:30px auto;
+    }
+
+    /* TIMELINE */
+    .timeline-box{
+        background:white;
+        border-radius:18px;
+        padding:28px 25px 35px;
+        box-shadow:0 5px 25px #00000012;
+        overflow:hidden;
+    }
+
+    .timeline-title{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:22px;
+    }
+
+    .timeline-title h2{margin:0;font-size:22px}
+    .contador{
+        background:#e9f8ef;
+        color:var(--verde-escuro);
+        padding:7px 13px;
+        border-radius:30px;
+        font-size:13px;
+        font-weight:bold;
+    }
+
+    .timeline-scroll{
+        overflow-x:auto;
+        padding:35px 10px 25px;
+        cursor:grab;
+    }
+
+    .timeline-scroll:active{cursor:grabbing}
+
+    .timeline{
+        position:relative;
+        display:flex;
+        align-items:flex-start;
+        gap:0;
+        min-width:max-content;
+        padding:0 45px;
+    }
+
+    .date-group{
+        position:relative;
+        width:260px;
+        flex:none;
+        text-align:center;
+    }
+
+    .date-group .event-dot{
+        margin-bottom:16px;
+    }
+
+    .date-events{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .date-events .event-card{
+        min-height:auto;
+        text-align:left;
+    }
+
+    .date-events .event-actions{
+        justify-content:flex-start;
+    }
+
+    .timeline::before{
+        content:"";
+        position:absolute;
+        top:16px;
+        left:45px;
+        right:45px;
+        height:5px;
+        background:linear-gradient(90deg,var(--verde),#8bd8a8);
+        border-radius:10px;
+    }
+
+    .event{
+        position:relative;
+        width:220px;
+        padding-top:0;
+        text-align:center;
+    }
+
+    .event-dot{
+        width:34px;
+        height:34px;
+        margin:0 auto 16px;
+        background:white;
+        border:7px solid var(--event-color, var(--verde));
+        border-radius:50%;
+        position:relative;
+        z-index:2;
+        box-shadow:0 2px 7px #0002;
+    }
+
+    .event-card{
+        background:white;
+        border:1px solid #e5eae7;
+        border-radius:14px;
+        padding:14px;
+        min-height:130px;
+        box-shadow:0 4px 12px #0000000d;
+        transition:.2s;
+    }
+
+    .event-card:hover{
+        transform:translateY(-4px);
+        box-shadow:0 8px 20px #00000018;
+    }
+
+    .event-date{
+        color:var(--event-color, var(--verde-escuro));
+        font-size:13px;
+        font-weight:bold;
+        margin-bottom:7px;
+    }
+
+    .event-title{
+        font-weight:bold;
+        font-size:16px;
+        margin-bottom:7px;
+    }
+
+    .event-desc{
+        color:#69756e;
+        font-size:12px;
+        line-height:1.4;
+    }
+
+    .event-actions{
+        display:flex;
+        justify-content:center;
+        gap:6px;
+        margin-top:10px;
+    }
+
+    .small-btn{
+        border:0;
+        border-radius:7px;
+        padding:6px 9px;
+        cursor:pointer;
+        font-size:11px;
+        background:#edf3ef;
+    }
+
+    .delete-btn{background:#ffecec;color:#b3261e}
+    .edit-btn{background:#eaf2ff;color:#1558a6}
+
+    /* FORM */
+    .form-box{
+        margin-top:25px;
+        background:white;
+        border-radius:18px;
+        padding:28px;
+        box-shadow:0 5px 25px #00000012;
+    }
+
+    .form-box h2{margin-top:0}
+
+    .grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:18px;
+    }
+
+    .field{display:flex;flex-direction:column;gap:7px}
+
+    .period-options{
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+    }
+
+    .period-option{
+        position:relative;
+    }
+
+    .period-option input{
+        position:absolute;
+        opacity:0;
+        pointer-events:none;
+    }
+
+    .period-option label{
+        display:block;
+        padding:10px 16px;
+        border:2px solid #d5ddd8;
+        border-radius:10px;
+        background:#f8faf9;
+        cursor:pointer;
+        font-size:13px;
+        transition:.15s;
+    }
+
+    .period-option label:hover{
+        border-color:var(--verde);
+    }
+
+    .period-option input:checked + label{
+        background:#e9f8ef;
+        border-color:var(--verde);
+        color:var(--verde-escuro);
+    }
+
+    .date-range{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+        margin-top:10px;
+    }
+
+    .range-help{
+        font-size:11px;
+        color:#718078;
+        margin-top:-2px;
+    }
+    .field.full{grid-column:1/-1}
+
+    label{font-weight:bold;font-size:13px}
+    input, textarea, select{
+        width:100%;
+        border:1px solid #d5ddd8;
+        border-radius:10px;
+        padding:12px;
+        font:inherit;
+        outline:none;
+        background:#fff;
+    }
+
+    input:focus,textarea:focus,select:focus{
+        border-color:var(--verde);
+        box-shadow:0 0 0 3px #35b86b22;
+    }
+
+    textarea{min-height:90px;resize:vertical}
+
+    .segment-options{
+        display:grid;
+        grid-template-columns:repeat(4, 1fr);
+        gap:9px;
+    }
+
+    .segment-option input{
+        position:absolute;
+        opacity:0;
+        pointer-events:none;
+    }
+
+    .segment-option span{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        min-height:42px;
+        border:2px solid #d5ddd8;
+        border-radius:10px;
+        background:#f8faf9;
+        cursor:pointer;
+        font-weight:bold;
+        font-size:13px;
+        transition:.15s;
+    }
+
+    .segment-option span:hover{
+        border-color:var(--verde);
+        transform:translateY(-1px);
+    }
+
+    .segment-option input:checked + span{
+        background:#e9f8ef;
+        border-color:var(--verde);
+        color:var(--verde-escuro);
+        box-shadow:0 0 0 2px #35b86b22;
+    }
+
+    .color-options{
+        display:grid;
+        grid-template-columns:repeat(4, 1fr);
+        gap:9px;
+    }
+
+    .color-option{
+        position:relative;
+    }
+
+    .color-option input{
+        position:absolute;
+        opacity:0;
+        pointer-events:none;
+    }
+
+    .color-option label{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:7px;
+        border:2px solid transparent;
+        border-radius:10px;
+        padding:10px 6px;
+        cursor:pointer;
+        background:#f5f7f6;
+        font-size:11px;
+        transition:.15s;
+    }
+
+    .color-option label:hover{
+        transform:translateY(-1px);
+    }
+
+    .color-option input:checked + label{
+        border-color:#24312a;
+        box-shadow:0 0 0 2px #fff, 0 0 0 4px #24312a;
+    }
+
+    .color-dot{
+        width:15px;
+        height:15px;
+        border-radius:50%;
+        flex:none;
+    }
+
+    @media(max-width:700px){
+        .color-options{grid-template-columns:repeat(2, 1fr)}
+        .segment-options{grid-template-columns:repeat(2, 1fr)}
+        .date-range{grid-template-columns:1fr}
+    }
+
+    .buttons{
+        display:flex;
+        gap:10px;
+        margin-top:20px;
+    }
+
+    .primary{
+        border:0;
+        background:var(--verde);
+        color:white;
+        font-weight:bold;
+        padding:13px 22px;
+        border-radius:10px;
+        cursor:pointer;
+    }
+
+    .primary:hover{background:var(--verde-escuro)}
+    .secondary{
+        border:1px solid #ccd6d0;
+        background:white;
+        padding:13px 18px;
+        border-radius:10px;
+        cursor:pointer;
+    }
+
+    .empty{
+        padding:45px;
+        text-align:center;
+        color:#7b8780;
+    }
+
+    @media(max-width:700px){
+        .grid{grid-template-columns:1fr}
+        .field.full{grid-column:auto}
+        .timeline-box,.form-box{padding:20px}
+        header h1{font-size:24px}
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Timeline Coleguium 2027</h1>
+    <p>Calendário de eventos em formato de linha do tempo</p>
+</header>
+
+<div class="container">
+
+    <section class="timeline-box">
+        <div class="timeline-title">
+            <h2>📅 Eventos de 2027</h2>
+            <span class="contador" id="contador">0 eventos</span>
+        </div>
+
+        <div class="timeline-scroll" id="timelineScroll">
+            <div class="timeline" id="timeline"></div>
+        </div>
+    </section>
+
+    <section class="form-box">
+        <h2>➕ Cadastrar novo evento</h2>
+        <p>Preencha os dados abaixo e clique em <b>Adicionar à Timeline</b>.</p>
+
+        <form id="eventForm">
+            <div class="grid">
+
+                <div class="field full">
+                    <label>Tipo de data</label>
+                    <div class="period-options">
+                        <div class="period-option">
+                            <input type="radio" id="tipo-data-unica" name="dateType" value="single" checked>
+                            <label for="tipo-data-unica">📅 Data única</label>
+                        </div>
+                        <div class="period-option">
+                            <input type="radio" id="tipo-periodo" name="dateType" value="period">
+                            <label for="tipo-periodo">📆 Período / vários dias</label>
+                        </div>
+                    </div>
+
+                    <div id="singleDateBox">
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div id="periodDateBox" style="display:none">
+                        <div class="date-range">
+                            <div class="field">
+                                <label for="startDate">Data inicial</label>
+                                <input type="date" id="startDate">
+                            </div>
+                            <div class="field">
+                                <label for="endDate">Data final</label>
+                                <input type="date" id="endDate">
+                            </div>
+                        </div>
+                        <div class="range-help">O evento será criado automaticamente em cada dia do período.</div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="category">Categoria</label>
+                    <select id="category">
+                        <option>Acadêmico</option>
+                        <option>Evento</option>
+                        <option>Esportes</option>
+                        <option>Cultural</option>
+                        <option>Comemoração</option>
+                        <option>Reunião</option>
+                        <option>Outro</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Segmento Escolar <span style="font-weight:normal;color:#718078">(pode selecionar vários)</span></label>
+                    <div class="segment-options">
+                        <label class="segment-option">
+                            <input type="checkbox" name="segments" value="EM">
+                            <span>EM</span>
+                        </label>
+                        <label class="segment-option">
+                            <input type="checkbox" name="segments" value="EFAF">
+                            <span>EFAF</span>
+                        </label>
+                        <label class="segment-option">
+                            <input type="checkbox" name="segments" value="EFAI">
+                            <span>EFAI</span>
+                        </label>
+                        <label class="segment-option">
+                            <input type="checkbox" name="segments" value="EI">
+                            <span>EI</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="field full">
+                    <label>Cor do Evento</label>
+                    <div class="color-options">
+                        <div class="color-option">
+                            <input type="radio" id="cor-vermelho" name="eventColor" value="#e53935" required>
+                            <label for="cor-vermelho"><span class="color-dot" style="background:#e53935"></span>Vermelho</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-laranja" name="eventColor" value="#fb8c00">
+                            <label for="cor-laranja"><span class="color-dot" style="background:#fb8c00"></span>Laranja</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-amarelo" name="eventColor" value="#f9c000">
+                            <label for="cor-amarelo"><span class="color-dot" style="background:#f9c000"></span>Amarelo</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-verde" name="eventColor" value="#00a651">
+                            <label for="cor-verde"><span class="color-dot" style="background:#00a651"></span>Verde</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-azul" name="eventColor" value="#1976d2">
+                            <label for="cor-azul"><span class="color-dot" style="background:#1976d2"></span>Azul</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-roxo" name="eventColor" value="#8e24aa">
+                            <label for="cor-roxo"><span class="color-dot" style="background:#8e24aa"></span>Roxo</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-rosa" name="eventColor" value="#e91e63">
+                            <label for="cor-rosa"><span class="color-dot" style="background:#e91e63"></span>Rosa</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" id="cor-ciano" name="eventColor" value="#00acc1">
+                            <label for="cor-ciano"><span class="color-dot" style="background:#00acc1"></span>Ciano</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field full">
+                    <label for="title">Nome do evento</label>
+                    <input type="text" id="title" placeholder="Ex.: DOM JUNINO 2027" required>
+                </div>
+
+                <div class="field full">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" placeholder="Digite uma breve descrição do evento..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="buttons">
+                <button class="primary" type="submit">➕ Adicionar à Timeline</button>
+                <button class="secondary" type="button" id="cancelEdit" onclick="cancelEdit()" style="display:none">Cancelar edição</button>
+                <button class="secondary" type="button" id="clearAll">Limpar todos</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+const STORAGE_KEY = "coleguium_timeline_2027";
+
+let events = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+}
+
+function formatDate(dateString){
+    const date = new Date(dateString + "T12:00:00");
+    return date.toLocaleDateString("pt-BR", {
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+    }).replace(".", "");
+}
+
+function formatWeekday(dateString){
+    const date = new Date(dateString + "T12:00:00");
+    return date.toLocaleDateString("pt-BR", {
+        weekday:"long"
+    });
+}
+
+function render(){
+    const timeline = document.getElementById("timeline");
+    const contador = document.getElementById("contador");
+
+    events.sort((a,b) => a.date.localeCompare(b.date));
+
+    contador.textContent = `${events.length} ${events.length === 1 ? "evento" : "eventos"}`;
+
+    if(events.length === 0){
+        timeline.innerHTML = `<div class="empty">Nenhum evento cadastrado ainda.<br>Use o formulário abaixo para começar.</div>`;
+        timeline.style.display = "block";
+        return;
+    }
+
+    timeline.style.display = "flex";
+
+    // Agrupa os eventos pela mesma data, para que exista apenas
+    // um ponto na linha do tempo para cada dia.
+    const groups = [];
+    const groupMap = new Map();
+
+    events.forEach((event, index) => {
+        if (!groupMap.has(event.date)) {
+            const group = { date: event.date, events: [] };
+            groupMap.set(event.date, group);
+            groups.push(group);
+        }
+        groupMap.get(event.date).events.push({event, index});
+    });
+
+    timeline.innerHTML = groups.map(group => `
+        <div class="date-group">
+            <div class="event-dot" style="--event-color:${group.events[0].event.color || '#35b86b'}"></div>
+            <div class="date-events">
+                ${group.events.map(({event, index}) => `
+                    <div class="event-card" style="--event-color:${event.color || '#35b86b'}">
+                        <div class="event-date">${formatDate(event.date)} • ${formatWeekday(event.date)}</div>
+                        <div class="event-title">${escapeHtml(event.title)}</div>
+                        <div class="event-desc">
+                            <b>${escapeHtml(event.category)}</b> •
+                            <b>${escapeHtml((event.segments || (event.segment ? [event.segment] : [])).join(", ") || "—")}</b><br>
+                            ${escapeHtml(event.description || "")}
+                        </div>
+                        <div class="event-actions">
+                            <button class="small-btn edit-btn" onclick="editEvent(${index})">✏️ Editar</button>
+                            <button class="small-btn delete-btn" onclick="removeEvent(${index})">🗑 Excluir</button>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        </div>
+    `).join("");
+}
+
+function escapeHtml(text){
+    return String(text).replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+    }[char]));
+}
+
+
+function updateDateFields(){
+    const type = document.querySelector('input[name="dateType"]:checked').value;
+    const singleBox = document.getElementById("singleDateBox");
+    const periodBox = document.getElementById("periodDateBox");
+    const date = document.getElementById("date");
+    const start = document.getElementById("startDate");
+    const end = document.getElementById("endDate");
+
+    if(type === "period"){
+        singleBox.style.display = "none";
+        periodBox.style.display = "block";
+        date.required = false;
+        start.required = true;
+        end.required = true;
+    } else {
+        singleBox.style.display = "block";
+        periodBox.style.display = "none";
+        date.required = true;
+        start.required = false;
+        end.required = false;
+    }
+}
+
+document.querySelectorAll('input[name="dateType"]').forEach(input => {
+    input.addEventListener("change", updateDateFields);
+});
+
+function datesBetween(startDate, endDate){
+    const result = [];
+    let current = new Date(startDate + "T12:00:00");
+    const end = new Date(endDate + "T12:00:00");
+
+    while(current <= end){
+        const y = current.getFullYear();
+        const m = String(current.getMonth()+1).padStart(2,"0");
+        const d = String(current.getDate()).padStart(2,"0");
+        result.push(`${y}-${m}-${d}`);
+        current.setDate(current.getDate()+1);
+    }
+    return result;
+}
+
+document.getElementById("eventForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const selectedColor = document.querySelector('input[name="eventColor"]:checked');
+    const selectedSegments = [...document.querySelectorAll('input[name="segments"]:checked')]
+        .map(input => input.value);
+
+    if (selectedSegments.length === 0) {
+        alert("Selecione pelo menos um Segmento Escolar.");
+        return;
+    }
+
+    const dateType = document.querySelector('input[name="dateType"]:checked').value;
+    let dates = [];
+
+    if(dateType === "period"){
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        if(!startDate || !endDate){
+            alert("Informe a data inicial e a data final.");
+            return;
+        }
+
+        if(endDate < startDate){
+            alert("A data final não pode ser anterior à data inicial.");
+            return;
+        }
+
+        dates = datesBetween(startDate, endDate);
+    } else {
+        const singleDate = document.getElementById("date").value;
+        if(!singleDate){
+            alert("Informe a data do evento.");
+            return;
+        }
+        dates = [singleDate];
+    }
+
+    const baseEvent = {
+        title: document.getElementById("title").value.trim(),
+        category: document.getElementById("category").value,
+        segments: selectedSegments,
+        color: selectedColor ? selectedColor.value : "#35b86b",
+        description: document.getElementById("description").value.trim()
+    };
+
+    if (editingIndex !== null) {
+        // Ao editar, um evento continua sendo um único registro.
+        events[editingIndex] = {
+            ...baseEvent,
+            date: dates[0]
+        };
+    } else {
+        // Em um período, cria um evento para cada dia.
+        dates.forEach(date => {
+            events.push({
+                ...baseEvent,
+                date: date,
+                periodId: dateType === "period" ? Date.now().toString() : null
+            });
+        });
+    }
+
+    save();
+    render();
+
+    cancelEdit();
+    document.getElementById("title").focus();
+});
+
+let editingIndex = null;
+
+function editEvent(index){
+    const event = events[index];
+    editingIndex = index;
+
+    document.getElementById("date").value = event.date;
+    document.getElementById("startDate").value = event.date;
+    document.getElementById("endDate").value = event.date;
+    document.querySelector('input[name="dateType"][value="single"]').checked = true;
+    updateDateFields();
+    document.getElementById("title").value = event.title;
+    document.getElementById("category").value = event.category;
+    document.getElementById("description").value = event.description || "";
+
+    // Segmentos: suporta tanto o formato novo quanto eventos antigos.
+    const segments = event.segments || (event.segment ? [event.segment] : []);
+    document.querySelectorAll('input[name="segments"]').forEach(input => {
+        input.checked = segments.includes(input.value);
+    });
+
+    document.querySelectorAll('input[name="eventColor"]').forEach(input => {
+        input.checked = input.value === (event.color || "#35b86b");
+    });
+
+    if (!document.querySelector('input[name="eventColor"]:checked')) {
+        document.getElementById("cor-verde").checked = true;
+    }
+
+    const submitButton = document.querySelector('#eventForm .primary');
+    submitButton.textContent = "💾 Salvar alterações";
+    const cancelButton = document.getElementById("cancelEdit");
+    if(cancelButton) cancelButton.style.display = "inline-block";
+
+    document.querySelector(".form-box").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+
+    document.getElementById("title").focus();
+}
+
+function cancelEdit(){
+    editingIndex = null;
+    document.getElementById("eventForm").reset();
+    document.querySelector('input[name="dateType"][value="single"]').checked = true;
+    updateDateFields();
+    document.getElementById("cor-verde").checked = true;
+    document.querySelector('#eventForm .primary').textContent = "➕ Adicionar à Timeline";
+    const cancelButton = document.getElementById("cancelEdit");
+    if(cancelButton) cancelButton.style.display = "none";
+}
+
+function removeEvent(index){
+    if(confirm("Deseja excluir este evento?")){
+        events.splice(index,1);
+        save();
+        render();
+    }
+}
+
+document.getElementById("clearAll").addEventListener("click",()=>{
+    if(events.length && confirm("Tem certeza que deseja apagar todos os eventos?")){
+        events = [];
+        save();
+        render();
+        cancelEdit();
+    }
+});
+
+/* Arrastar a timeline com o mouse */
+const slider = document.getElementById("timelineScroll");
+let isDown = false, startX, scrollLeft;
+
+slider.addEventListener("mousedown", e=>{
+    isDown=true;
+    startX=e.pageX-slider.offsetLeft;
+    scrollLeft=slider.scrollLeft;
+});
+slider.addEventListener("mouseleave",()=>isDown=false);
+slider.addEventListener("mouseup",()=>isDown=false);
+slider.addEventListener("mousemove",e=>{
+    if(!isDown)return;
+    e.preventDefault();
+    const x=e.pageX-slider.offsetLeft;
+    const walk=(x-startX)*1.5;
+    slider.scrollLeft=scrollLeft-walk;
+});
+
+document.getElementById("cor-verde").checked = true;
+
+/* ==========================================================
+   EVENTOS BASE 2027 — FERIADOS E DATAS COMEMORATIVAS
+   São inseridos apenas uma vez. Eventos já cadastrados pelo
+   usuário não são duplicados.
+   ========================================================== */
+
+const eventosBase2027 = [
+    // Feriados / pontos facultativos
+    {date:"2027-01-01", title:"Confraternização Universal / Ano Novo", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-02-08", title:"Segunda-feira de Carnaval", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Ponto facultativo / Carnaval."},
+    {date:"2027-02-09", title:"Carnaval", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Carnaval."},
+    {date:"2027-02-10", title:"Quarta-feira de Cinzas", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Ponto facultativo, conforme regras aplicáveis."},
+    {date:"2027-03-26", title:"Sexta-feira Santa / Paixão de Cristo", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-04-21", title:"Tiradentes", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-05-01", title:"Dia do Trabalho", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-05-27", title:"Corpus Christi", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Data religiosa / ponto facultativo conforme calendário aplicável."},
+    {date:"2027-09-07", title:"Independência do Brasil", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-10-12", title:"Nossa Senhora Aparecida", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-11-02", title:"Finados", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-11-15", title:"Proclamação da República", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-11-20", title:"Dia Nacional de Zumbi e da Consciência Negra", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+    {date:"2027-12-25", title:"Natal", category:"Feriado", segments:["EM","EFAF","EFAI","EI"], color:"#e53935", description:"Feriado nacional."},
+
+    // Datas comemorativas / educativas
+    {date:"2027-03-08", title:"Dia Internacional da Mulher", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#e91e63", description:"Data comemorativa."},
+    {date:"2027-03-15", title:"Dia do Consumidor", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00acc1", description:"Data comemorativa."},
+    {date:"2027-03-22", title:"Dia Mundial da Água", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data educativa e de conscientização ambiental."},
+    {date:"2027-03-28", title:"Páscoa", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Data comemorativa."},
+    {date:"2027-04-19", title:"Dia dos Povos Indígenas", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data educativa e cultural."},
+    {date:"2027-05-09", title:"Dia das Mães", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#e91e63", description:"Data comemorativa."},
+    {date:"2027-06-05", title:"Dia Mundial do Meio Ambiente", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de conscientização ambiental."},
+    {date:"2027-07-20", title:"Dia do Amigo", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data comemorativa."},
+    {date:"2027-08-08", title:"Dia dos Pais", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data comemorativa."},
+    {date:"2027-08-11", title:"Dia do Estudante", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#1976d2", description:"Data comemorativa escolar."},
+    {date:"2027-08-22", title:"Dia do Folclore", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data cultural e educativa."},
+    {date:"2027-09-05", title:"Dia da Amazônia", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de valorização e conscientização sobre a Amazônia."},
+    {date:"2027-09-08", title:"Dia Mundial da Alfabetização", category:"Data comemorativa", segments:["EFAI","EI"], color:"#00acc1", description:"Data educativa."},
+    {date:"2027-09-21", title:"Dia da Árvore", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data de conscientização ambiental."},
+    {date:"2027-10-12", title:"Dia das Crianças", category:"Data comemorativa", segments:["EFAI","EI"], color:"#fb8c00", description:"Data comemorativa escolar."},
+    {date:"2027-10-15", title:"Dia do Professor", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#8e24aa", description:"Data comemorativa da educação."},
+    {date:"2027-10-29", title:"Dia Nacional do Livro", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#fb8c00", description:"Data de incentivo à leitura."},
+    {date:"2027-11-19", title:"Dia da Bandeira", category:"Data comemorativa", segments:["EM","EFAF","EFAI","EI"], color:"#00a651", description:"Data cívica."}
+];
+
+// Normaliza eventos antigos que usavam "segment" em vez de "segments".
+events = events.map(event => ({
+    ...event,
+    segments: event.segments || (event.segment ? [event.segment] : ["EM","EFAF","EFAI","EI"])
+}));
+
+let baseAdicionados = 0;
+eventosBase2027.forEach(base => {
+    const jaExiste = events.some(event =>
+        event.date === base.date && event.title === base.title
+    );
+
+    if (!jaExiste) {
+        events.push(base);
+        baseAdicionados++;
+    }
+});
+
+if (baseAdicionados > 0) {
+    save();
+}
+
+render();
+</script>
+
+</body>
+</html>
