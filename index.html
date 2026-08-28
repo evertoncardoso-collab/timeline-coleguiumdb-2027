@@ -189,6 +189,65 @@
         box-shadow:0 8px 20px #00000018;
     }
 
+/* EVENTOS COM VÁRIOS DIAS */
+.period-card{
+    border-top:5px solid var(--event-color, var(--verde));
+}
+
+.period-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 8px;
+    margin-bottom:8px;
+    border:1px solid var(--event-color, var(--verde));
+    border-radius:20px;
+    color:var(--event-color, var(--verde-escuro));
+    background:white;
+    font-size:10px;
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+}
+
+.period-dates{
+    color:var(--event-color, var(--verde-escuro));
+    font-size:13px;
+    font-weight:bold;
+    line-height:1.35;
+}
+
+.period-weekdays{
+    color:#718078;
+    font-size:11px;
+    margin-top:3px;
+}
+
+.period-progress{
+    display:flex;
+    align-items:center;
+    width:100%;
+    gap:5px;
+    margin:9px 0 11px;
+}
+
+.period-point{
+    width:9px;
+    height:9px;
+    flex:none;
+    border-radius:50%;
+    background:var(--event-color, var(--verde));
+}
+
+.period-line{
+    flex:1;
+    height:3px;
+    background:var(--event-color, var(--verde));
+    border-radius:10px;
+    opacity:.65;
+}
+    
+
     .event-date{
         color:var(--event-color, var(--verde-escuro));
         font-size:13px;
@@ -652,6 +711,51 @@ function formatWeekday(dateString){
     });
 }
 
+
+function countPeriodDays(startDate, endDate){
+    const [sy, sm, sd] = startDate.split("-").map(Number);
+    const [ey, em, ed] = endDate.split("-").map(Number);
+
+    const inicio = Date.UTC(sy, sm - 1, sd);
+    const fim = Date.UTC(ey, em - 1, ed);
+
+    return Math.round((fim - inicio) / 86400000) + 1;
+}
+
+function renderEventDate(event){
+
+    if(!event.endDate){
+        return `
+            <div class="event-date">
+                ${formatDate(event.date)} • ${formatWeekday(event.date)}
+            </div>
+        `;
+    }
+
+    const totalDias = countPeriodDays(event.date, event.endDate);
+
+    return `
+        <div class="period-badge">
+            📆 Período • ${totalDias} ${totalDias === 1 ? "dia" : "dias"}
+        </div>
+
+        <div class="period-dates">
+            ${formatDate(event.date)} → ${formatDate(event.endDate)}
+        </div>
+
+        <div class="period-weekdays">
+            ${formatWeekday(event.date)} → ${formatWeekday(event.endDate)}
+        </div>
+
+        <div class="period-progress">
+            <span class="period-point"></span>
+            <span class="period-line"></span>
+            <span class="period-point"></span>
+        </div>
+    `;
+}
+    
+
 function render(){
     const timeline = document.getElementById("timeline");
     const contador = document.getElementById("contador");
@@ -687,8 +791,8 @@ function render(){
             <div class="event-dot" style="--event-color:${group.events[0].event.color || '#35b86b'}"></div>
             <div class="date-events">
                 ${group.events.map(({event, index}) => `
-                    <div class="event-card" style="--event-color:${event.color || '#35b86b'}">
-                        <div class="event-date">${formatDate(event.date)} • ${formatWeekday(event.date)}</div>
+                    <div class="event-card ${event.endDate ? 'period-card' : ''}" style="--event-color:${event.color || '#35b86b'}">
+                            ${renderEventDate(event)}
                         <div class="event-title">${escapeHtml(event.title)}</div>
                         <div class="event-desc">
                             <b>${escapeHtml(event.category)}</b> •
