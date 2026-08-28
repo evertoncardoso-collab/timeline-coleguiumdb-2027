@@ -35,6 +35,72 @@
 </script>
     
 <style>
+
+    /* LOGIN ADMINISTRATIVO */
+
+.login-box{
+    margin-top:25px;
+    background:white;
+    border-radius:18px;
+    padding:24px 28px;
+    box-shadow:0 5px 25px #00000012;
+}
+
+.login-box h3{
+    margin:0 0 6px;
+}
+
+.login-box p{
+    margin:0 0 18px;
+    color:#69756e;
+    font-size:13px;
+}
+
+.login-form{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.login-form input{
+    max-width:260px;
+}
+
+.login-form .primary{
+    white-space:nowrap;
+}
+
+.login-message{
+    margin-top:10px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.admin-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    margin-bottom:22px;
+    border-radius:10px;
+    background:#e9f8ef;
+    color:var(--verde-escuro);
+    font-weight:bold;
+}
+
+@media(max-width:700px){
+    .login-form{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .login-form input{
+        max-width:none;
+    }
+}
+
+
+    
     :root{
         --verde:#35b86b;
         --verde-escuro:#16834a;
@@ -675,7 +741,48 @@ body{
         
     </section>
 
-    <section class="form-box">
+   <section class="login-box" id="loginBox">
+    <h3>🔐 Acesso administrativo</h3>
+    <p>Entre para cadastrar e administrar os eventos.</p>
+
+    <form id="loginForm" class="login-form">
+        <input
+            type="text"
+            id="adminUser"
+            placeholder="Usuário"
+            autocomplete="username"
+            required
+        >
+
+        <input
+            type="password"
+            id="adminPass"
+            placeholder="Senha"
+            autocomplete="current-password"
+            required
+        >
+
+        <button class="primary" type="submit">
+            Entrar
+        </button>
+    </form>
+
+    <div id="loginMessage" class="login-message"></div>
+</section>
+
+
+<section class="form-box" id="adminPanel" style="display:none">
+
+    <div class="admin-toolbar">
+        <span>🔓 Modo administrador</span>
+
+        <button
+            type="button"
+            class="secondary"
+            id="logoutBtn">
+            Sair
+        </button>
+    </div>
         <h2>➕ Cadastrar novo evento</h2>
         <p>Preencha os dados abaixo e clique em <b>Adicionar à Timeline</b>.</p>
 
@@ -814,6 +921,131 @@ body{
 
 let events = [];
 
+    /* ==========================================================
+   ACESSO ADMINISTRATIVO
+========================================================== */
+
+const ADMIN_USER = "evertondsc";
+
+/*
+   A senha não fica escrita no HTML.
+   Aqui guardamos apenas o SHA-256 dela.
+*/
+const ADMIN_PASS_HASH =
+    "760f93652759b677172a300bff4da8e17eb46e6a1f9de09d805232204b3d547d";
+
+let isAdmin =
+    sessionStorage.getItem("timeline_admin") === "1";
+
+
+async function gerarHash(texto){
+
+    const dados =
+        new TextEncoder().encode(texto);
+
+    const hashBuffer =
+        await crypto.subtle.digest("SHA-256", dados);
+
+    return Array.from(
+        new Uint8Array(hashBuffer)
+    )
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+
+function atualizarModoAdmin(){
+
+    const loginBox =
+        document.getElementById("loginBox");
+
+    const adminPanel =
+        document.getElementById("adminPanel");
+
+    loginBox.style.display =
+        isAdmin ? "none" : "block";
+
+    adminPanel.style.display =
+        isAdmin ? "block" : "none";
+}
+
+
+document
+.getElementById("loginForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const usuario =
+        document.getElementById("adminUser")
+        .value.trim();
+
+    const senha =
+        document.getElementById("adminPass")
+        .value;
+
+    const mensagem =
+        document.getElementById("loginMessage");
+
+    const senhaHash =
+        await gerarHash(senha);
+
+    if(
+        usuario === ADMIN_USER &&
+        senhaHash === ADMIN_PASS_HASH
+    ){
+
+        isAdmin = true;
+
+        sessionStorage.setItem(
+            "timeline_admin",
+            "1"
+        );
+
+        mensagem.textContent = "";
+
+        atualizarModoAdmin();
+
+        render();
+
+        document
+            .getElementById("adminPanel")
+            .scrollIntoView({
+                behavior:"smooth",
+                block:"start"
+            });
+
+    }else{
+
+        mensagem.style.color = "#b3261e";
+        mensagem.textContent =
+            "Usuário ou senha incorretos.";
+    }
+});
+
+
+document
+.getElementById("logoutBtn")
+.addEventListener("click", function(){
+
+    isAdmin = false;
+
+    sessionStorage.removeItem(
+        "timeline_admin"
+    );
+
+    cancelEdit();
+
+    atualizarModoAdmin();
+
+    render();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+});
+
 async function carregarEventosDoSupabase() {
     const { data, error } = await supabaseClient
         .from("eventos")
@@ -951,9 +1183,22 @@ function render(){
                             <b>${escapeHtml((event.segments || (event.segment ? [event.segment] : [])).join(", ") || "—")}</b><br>
                             ${escapeHtml(event.description || "")}
                         </div>
-                        <div class="event-actions">
-                            <button class="small-btn edit-btn" onclick="editEvent(${index})">✏️ Editar</button>
-                            <button class="small-btn delete-btn" onclick="removeEvent(${index})">🗑 Excluir</button>
+                        
+                        ${isAdmin ? `
+    <div class="event-actions">
+        <button
+            class="small-btn edit-btn"
+            onclick="editEvent(${index})">
+            ✏️ Editar
+        </button>
+
+        <button
+            class="small-btn delete-btn"
+            onclick="removeEvent(${index})">
+            🗑 Excluir
+        </button>
+    </div>
+` : ""}
                         </div>
                     </div>
                 `).join("")}
@@ -1114,6 +1359,9 @@ document.getElementById("eventForm").addEventListener("submit", async function(e
         }
 
         alert("✅ Evento cadastrado com sucesso!");
+
+
+        
     }
 
     await carregarEventosDoSupabase();
@@ -1277,7 +1525,9 @@ slider.addEventListener("mousemove",e=>{
 
 document.getElementById("cor-verde").checked = true;
 
-   
+atualizarModoAdmin();
+
+    
 carregarEventosDoSupabase();
 
 /* ==========================================================
