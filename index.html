@@ -757,24 +757,42 @@ function datesBetween(startDate, endDate){
     return result;
 }
 
-document.getElementById("eventForm").addEventListener("submit", function(e){
+document.getElementById("eventForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
-    const selectedColor = document.querySelector('input[name="eventColor"]:checked');
-    const selectedSegments = [...document.querySelectorAll('input[name="segments"]:checked')]
+    const selectedColor =
+        document.querySelector('input[name="eventColor"]:checked');
+
+    const selectedSegments =
+        [...document.querySelectorAll('input[name="segments"]:checked')]
         .map(input => input.value);
 
-    if (selectedSegments.length === 0) {
+    if(selectedSegments.length === 0){
         alert("Selecione pelo menos um Segmento Escolar.");
         return;
     }
 
-    const dateType = document.querySelector('input[name="dateType"]:checked').value;
-    let dates = [];
+    const title =
+        document.getElementById("title").value.trim();
+
+    if(!title){
+        alert("Informe o nome do evento.");
+        return;
+    }
+
+    const dateType =
+        document.querySelector('input[name="dateType"]:checked').value;
+
+    let startDate;
+    let endDate = null;
 
     if(dateType === "period"){
-        const startDate = document.getElementById("startDate").value;
-        const endDate = document.getElementById("endDate").value;
+
+        startDate =
+            document.getElementById("startDate").value;
+
+        endDate =
+            document.getElementById("endDate").value;
 
         if(!startDate || !endDate){
             alert("Informe a data inicial e a data final.");
@@ -786,23 +804,66 @@ document.getElementById("eventForm").addEventListener("submit", function(e){
             return;
         }
 
-        dates = datesBetween(startDate, endDate);
     } else {
-        const singleDate = document.getElementById("date").value;
-        if(!singleDate){
+
+        startDate =
+            document.getElementById("date").value;
+
+        if(!startDate){
             alert("Informe a data do evento.");
             return;
         }
-        dates = [singleDate];
     }
 
-    const baseEvent = {
-        title: document.getElementById("title").value.trim(),
-        category: document.getElementById("category").value,
-        segments: selectedSegments,
-        color: selectedColor ? selectedColor.value : "#35b86b",
-        description: document.getElementById("description").value.trim()
+    const eventoBanco = {
+        titulo: title,
+        data_inicio: startDate,
+        data_fim: endDate,
+        categoria: document.getElementById("category").value,
+        segmentos: selectedSegments,
+        cor: selectedColor ? selectedColor.value : "#35b86b",
+        descricao: document.getElementById("description").value.trim(),
+        tipo: dateType === "period" ? "periodo" : "data_unica"
     };
+
+    if(editingIndex !== null){
+
+        const eventId = events[editingIndex].id;
+
+        const { error } = await supabaseClient
+            .from("eventos")
+            .update(eventoBanco)
+            .eq("id", eventId);
+
+        if(error){
+            console.error("Erro ao editar:", error);
+            alert("Não foi possível salvar as alterações.");
+            return;
+        }
+
+        alert("✅ Evento atualizado com sucesso!");
+
+    } else {
+
+        const { error } = await supabaseClient
+            .from("eventos")
+            .insert([eventoBanco]);
+
+        if(error){
+            console.error("Erro ao cadastrar:", error);
+            alert("Não foi possível cadastrar o evento.");
+            return;
+        }
+
+        alert("✅ Evento cadastrado com sucesso!");
+    }
+
+    await carregarEventosDoSupabase();
+
+    cancelEdit();
+
+    document.getElementById("title").focus();
+});
 
     if (editingIndex !== null) {
         // Ao editar, um evento continua sendo um único registro.
@@ -834,11 +895,27 @@ function editEvent(index){
     const event = events[index];
     editingIndex = index;
 
-    document.getElementById("date").value = event.date;
+if(event.endDate){
+
+    document.querySelector(
+        'input[name="dateType"][value="period"]'
+    ).checked = true;
+
     document.getElementById("startDate").value = event.date;
-    document.getElementById("endDate").value = event.date;
-    document.querySelector('input[name="dateType"][value="single"]').checked = true;
-    updateDateFields();
+    document.getElementById("endDate").value = event.endDate;
+
+} else {
+
+    document.querySelector(
+        'input[name="dateType"][value="single"]'
+    ).checked = true;
+
+    document.getElementById("date").value = event.date;
+}
+
+updateDateFields();
+
+    
     document.getElementById("title").value = event.title;
     document.getElementById("category").value = event.category;
     document.getElementById("description").value = event.description || "";
@@ -880,23 +957,32 @@ function cancelEdit(){
     const cancelButton = document.getElementById("cancelEdit");
     if(cancelButton) cancelButton.style.display = "none";
 }
+async function removeEvent(index){
 
-function removeEvent(index){
-    if(confirm("Deseja excluir este evento?")){
-        events.splice(index,1);
-        save();
-        render();
-    }
-}
+    const event = events[index];
 
-document.getElementById("clearAll").addEventListener("click",()=>{
-    if(events.length && confirm("Tem certeza que deseja apagar todos os eventos?")){
-        events = [];
-        save();
-        render();
+    if(!event) return;
+
+    if(confirm(`Deseja excluir "${event.title}"?`)){
+
+        const { error } = await supabaseClient
+            .from("eventos")
+            .delete()
+            .eq("id", event.id);
+
+        if(error){
+            console.error("Erro ao excluir:", error);
+            alert("Não foi possível excluir o evento.");
+            return;
+        }
+
+        await carregarEventosDoSupabase();
+
         cancelEdit();
+
+        alert("🗑 Evento excluído com sucesso!");
     }
-});
+}    
 
 /* Arrastar a timeline com o mouse */
 const slider = document.getElementById("timelineScroll");
