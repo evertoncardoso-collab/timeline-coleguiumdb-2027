@@ -255,15 +255,22 @@ body{
         color:var(--texto);
     }
 
-    header{
-        background:linear-gradient(135deg,#16834a,#35b86b);
-        color:white;
-        padding:28px 5%;
-        box-shadow:0 4px 15px #0002;
-    }
+   .banner-header{
+    width:100%;
+    padding:0;
+    margin:0;
+    background:#fff;
+    overflow:hidden;
+    line-height:0;
+    box-shadow:0 4px 15px #0002;
+}
 
-    header h1{margin:0 0 6px;font-size:30px}
-    header p{margin:0;opacity:.9}
+.banner-header-img{
+    display:block;
+    width:100%;
+    height:auto;
+    margin:0;
+}
 
     .container{
         width:min(1400px,94%);
@@ -694,15 +701,18 @@ body{
         .grid{grid-template-columns:1fr}
         .field.full{grid-column:auto}
         .timeline-box,.form-box{padding:20px}
-        header h1{font-size:24px}
+       
     }
 </style>
 </head>
 <body>
 
-<header>
-    <h1>Timeline Coleguium 2027</h1>
-    <p>Calendário de eventos em formato de linha do tempo</p>
+<header class="banner-header">
+    <img
+        src="https://zvdbniuqpsoqmyyfeozt.supabase.co/storage/v1/object/public/imagens/cabecalho-timeline-1.png"
+        alt="Timeline - Coleguium Dom Bosco Parauapebas - 2027"
+        class="banner-header-img"
+    >
 </header>
 
 <div class="container">
