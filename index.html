@@ -1081,7 +1081,18 @@ async function carregarEventosDoSupabase() {
 
     console.log(`✅ ${events.length} eventos carregados DIRETAMENTE do Supabase`);
 
-    render();
+   render();
+
+if(!timelineAutoFocada){
+
+    timelineAutoFocada = true;
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            focarEventoAtualOuProximo();
+        });
+    });
+}
 }
 
 function save(){
@@ -1148,7 +1159,94 @@ function renderEventDate(event){
         </div>
     `;
 }
-    
+
+
+    /* ==========================================================
+   FOCO AUTOMÁTICO: HOJE OU PRÓXIMO EVENTO
+========================================================== */
+
+let timelineAutoFocada = false;
+
+function dataHojeISO(){
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+
+function focarEventoAtualOuProximo(){
+
+    if(!events.length) return;
+
+    const hoje = dataHojeISO();
+
+    // 1. Prioridade: evento que começa exatamente hoje
+    let alvo = events.find(event =>
+        event.date === hoje
+    );
+
+    // 2. Depois: período que esteja acontecendo hoje
+    if(!alvo){
+        alvo = events.find(event =>
+            event.endDate &&
+            event.date < hoje &&
+            event.endDate >= hoje
+        );
+    }
+
+    // 3. Depois: primeiro evento futuro
+    if(!alvo){
+        alvo = events.find(event =>
+            event.date > hoje
+        );
+    }
+
+    // 4. Se todos já passaram, vai para o último
+    if(!alvo){
+        alvo = events[events.length - 1];
+    }
+
+    const grupos =
+        [...document.querySelectorAll(".date-group")];
+
+    const grupoAlvo = grupos.find(grupo =>
+        grupo.dataset.date === alvo.date
+    );
+
+    if(!grupoAlvo) return;
+
+    const scroll =
+        document.getElementById("timelineScroll");
+
+    const posicao =
+        grupoAlvo.offsetLeft -
+        (scroll.clientWidth / 2) +
+        (grupoAlvo.offsetWidth / 2);
+
+    const maxScroll =
+        scroll.scrollWidth -
+        scroll.clientWidth;
+
+    const destino =
+        Math.max(
+            0,
+            Math.min(posicao, maxScroll)
+        );
+
+    scroll.scrollTo({
+        left: destino,
+        behavior: "smooth"
+    });
+
+    setTimeout(
+        atualizarBotoesTimeline,
+        500
+    );
+}
 
 function render(){
     const timeline = document.getElementById("timeline");
@@ -1181,7 +1279,7 @@ function render(){
     });
 
     timeline.innerHTML = groups.map(group => `
-        <div class="date-group">
+        <div class="date-group" data-date="${group.date}">
             <div class="event-dot" style="--event-color:${group.events[0].event.color || '#35b86b'}"></div>
             <div class="date-events">
                 ${group.events.map(({event, index}) => `
