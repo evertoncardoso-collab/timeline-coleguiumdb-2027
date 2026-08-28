@@ -865,29 +865,7 @@ document.getElementById("eventForm").addEventListener("submit", async function(e
     document.getElementById("title").focus();
 });
 
-    if (editingIndex !== null) {
-        // Ao editar, um evento continua sendo um único registro.
-        events[editingIndex] = {
-            ...baseEvent,
-            date: dates[0]
-        };
-    } else {
-        // Em um período, cria um evento para cada dia.
-        dates.forEach(date => {
-            events.push({
-                ...baseEvent,
-                date: date,
-                periodId: dateType === "period" ? Date.now().toString() : null
-            });
-        });
-    }
-
-    save();
-    render();
-
-    cancelEdit();
-    document.getElementById("title").focus();
-});
+   
 
 let editingIndex = null;
 
@@ -984,6 +962,42 @@ async function removeEvent(index){
     }
 }    
 
+document.getElementById("clearAll").addEventListener("click", async function(){
+
+    if(!events.length){
+        alert("Não há eventos para apagar.");
+        return;
+    }
+
+    const confirmar = confirm(
+        "⚠️ ATENÇÃO!\n\nIsso apagará TODOS os eventos da Timeline e do Supabase.\n\nDeseja realmente continuar?"
+    );
+
+    if(!confirmar) return;
+
+    const segundaConfirmacao = confirm(
+        "Última confirmação: deseja apagar TODOS os eventos?"
+    );
+
+    if(!segundaConfirmacao) return;
+
+    const { error } = await supabaseClient
+        .from("eventos")
+        .delete()
+        .gt("id", 0);
+
+    if(error){
+        console.error("Erro ao limpar eventos:", error);
+        alert("Não foi possível apagar os eventos.");
+        return;
+    }
+
+    await carregarEventosDoSupabase();
+    cancelEdit();
+
+    alert("Todos os eventos foram apagados.");
+});
+    
 /* Arrastar a timeline com o mouse */
 const slider = document.getElementById("timelineScroll");
 let isDown = false, startX, scrollLeft;
