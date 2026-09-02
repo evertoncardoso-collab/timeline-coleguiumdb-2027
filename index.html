@@ -2771,6 +2771,24 @@ function hexToRgbCsv(hex){
     return `${r}, ${g}, ${b}`;
 }
 
+function getContrastTextColor(hex){
+
+    const limpa = sanitizePrintColor(hex).replace("#", "");
+
+    const r = parseInt(limpa.slice(0, 2), 16);
+    const g = parseInt(limpa.slice(2, 4), 16);
+    const b = parseInt(limpa.slice(4, 6), 16);
+
+    // Luminância perceptiva: cores escuras recebem branco,
+    // cores claras recebem texto preto.
+    const luminancia =
+        (0.299 * r) +
+        (0.587 * g) +
+        (0.114 * b);
+
+    return luminancia < 160 ? "#ffffff" : "#111111";
+}
+
 function formatPrintDate(event){
 
     const inicio = getPrintDateParts(event.date);
@@ -2894,19 +2912,18 @@ function renderPrintDayCell(cell){
 
     const firstColor = hasEvents
         ? sanitizePrintColor(dayEvents[0].color)
-        : "#dce5e0";
+        : "#ffffff";
 
-    const rgb = hasEvents
-        ? hexToRgbCsv(firstColor)
-        : "220,229,224";
+    const contrastColor = hasEvents
+        ? getContrastTextColor(firstColor)
+        : "#3c4440";
 
+    // As bolinhas usam a mesma cor de contraste do texto:
+    // branca sobre fundos escuros e preta sobre fundos claros.
     const dots = dayEvents
         .slice(0, 3)
-        .map(event => `
-            <span
-                class="print-day-dot"
-                style="background:${sanitizePrintColor(event.color)}">
-            </span>
+        .map(() => `
+            <span class="print-day-dot"></span>
         `)
         .join("");
 
@@ -2917,7 +2934,10 @@ function renderPrintDayCell(cell){
     return `
         <div
             class="print-day ${hasEvents ? "has-events" : ""}"
-            style="--cell-color:${firstColor}; --cell-rgb:${rgb};"
+            style="
+                --cell-color:${firstColor};
+                --cell-text:${contrastColor};
+            "
         >
             <div class="print-day-num">
                 ${cell.day}
@@ -3441,12 +3461,14 @@ body{
 }
 
 .print-day.has-events{
-    background:rgba(var(--cell-rgb), .11);
-    box-shadow:inset 0 -1.2mm 0 var(--cell-color);
+    background:var(--cell-color) !important;
+    border-color:var(--cell-color) !important;
+    color:var(--cell-text) !important;
+    box-shadow:none;
 }
 
 .print-day.has-events .print-day-num{
-    color:var(--cell-color);
+    color:var(--cell-text) !important;
     font-weight:bold;
 }
 
@@ -3463,16 +3485,22 @@ body{
     min-height:2.5mm;
 }
 
+.print-day.has-events .print-day-markers{
+    color:var(--cell-text) !important;
+}
+
 .print-day-dot{
     width:1.7mm;
     height:1.7mm;
     border-radius:50%;
     display:inline-block;
+    background:currentColor;
+    border:.18mm solid currentColor;
 }
 
 .print-day-more{
     font-size:5.2pt;
-    color:#5d6862;
+    color:currentColor;
     font-weight:bold;
 }
 
