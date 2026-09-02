@@ -303,6 +303,153 @@ body{
     }
 
     .timeline-title h2{margin:0;font-size:22px}
+
+
+    /* FILTROS RÁPIDOS + BUSCA */
+    .timeline-filters{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+        margin:0 0 18px;
+        padding:14px;
+        border:1px solid #e6ece8;
+        border-radius:14px;
+        background:#f9fbfa;
+    }
+
+    .filter-row{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-wrap:wrap;
+    }
+
+    .filter-label{
+        min-width:72px;
+        font-size:12px;
+        font-weight:bold;
+        color:#68756e;
+    }
+
+    .filter-chip{
+        border:1px solid #d7e0db;
+        background:#fff;
+        color:#425048;
+        border-radius:999px;
+        padding:7px 11px;
+        font-size:11px;
+        font-weight:bold;
+        cursor:pointer;
+        transition:.15s ease;
+    }
+
+    .filter-chip:hover{
+        border-color:var(--verde);
+        color:var(--verde-escuro);
+        transform:translateY(-1px);
+    }
+
+    .filter-chip.active{
+        border-color:var(--verde);
+        background:#e9f8ef;
+        color:var(--verde-escuro);
+        box-shadow:0 0 0 2px #35b86b18;
+    }
+
+    .timeline-search-wrap{
+        position:relative;
+        width:min(520px,100%);
+    }
+
+    .timeline-search-icon{
+        position:absolute;
+        left:12px;
+        top:50%;
+        transform:translateY(-50%);
+        pointer-events:none;
+        font-size:15px;
+        opacity:.65;
+    }
+
+    .timeline-search{
+        width:100%;
+        height:40px;
+        padding:9px 36px 9px 38px;
+        border:1px solid #d5ddd8;
+        border-radius:11px;
+        background:#fff;
+        font-size:13px;
+    }
+
+    .timeline-search:focus{
+        border-color:var(--verde);
+        box-shadow:0 0 0 3px #35b86b22;
+    }
+
+    .timeline-search-clear{
+        position:absolute;
+        right:7px;
+        top:50%;
+        transform:translateY(-50%);
+        width:27px;
+        height:27px;
+        display:none;
+        align-items:center;
+        justify-content:center;
+        border:0;
+        border-radius:50%;
+        background:#eef2f0;
+        color:#5c6962;
+        cursor:pointer;
+        font-size:16px;
+        line-height:1;
+    }
+
+    .timeline-search-clear.visible{
+        display:flex;
+    }
+
+    .filter-summary{
+        margin-left:auto;
+        color:#77837d;
+        font-size:11px;
+    }
+
+    @media(max-width:700px){
+        .timeline-filters{
+            gap:10px;
+            margin-bottom:12px;
+            padding:10px;
+        }
+
+        .filter-row{
+            gap:6px;
+        }
+
+        .filter-label{
+            width:100%;
+            min-width:0;
+            font-size:10px;
+            text-transform:uppercase;
+            letter-spacing:.3px;
+        }
+
+        .filter-chip{
+            padding:6px 8px;
+            font-size:9px;
+        }
+
+        .timeline-search{
+            height:38px;
+            font-size:12px;
+        }
+
+        .filter-summary{
+            width:100%;
+            margin-left:0;
+            font-size:10px;
+        }
+    }
     .contador{
         background:#e9f8ef;
         color:var(--verde-escuro);
@@ -1433,6 +1580,54 @@ body{
     </div>
 </div>
 
+        <div class="timeline-filters" id="timelineFilters">
+
+            <div class="filter-row">
+                <span class="filter-label">Segmento</span>
+
+                <button type="button" class="filter-chip active" data-segment-filter="Todos">Todos</button>
+                <button type="button" class="filter-chip" data-segment-filter="EI">EI</button>
+                <button type="button" class="filter-chip" data-segment-filter="EFAI">EFAI</button>
+                <button type="button" class="filter-chip" data-segment-filter="EFAF">EFAF</button>
+                <button type="button" class="filter-chip" data-segment-filter="EM">EM</button>
+            </div>
+
+            <div class="filter-row">
+                <span class="filter-label">Categoria</span>
+
+                <button type="button" class="filter-chip active" data-category-filter="Todos">Todas</button>
+                <button type="button" class="filter-chip" data-category-filter="Acadêmico">Acadêmico</button>
+                <button type="button" class="filter-chip" data-category-filter="Feriado">Feriado</button>
+                <button type="button" class="filter-chip" data-category-filter="Reunião">Reunião</button>
+                <button type="button" class="filter-chip" data-category-filter="Evento">Evento</button>
+                <button type="button" class="filter-chip" data-category-filter="Data comemorativa">Data comemorativa</button>
+            </div>
+
+            <div class="filter-row">
+                <div class="timeline-search-wrap">
+                    <span class="timeline-search-icon">🔎</span>
+
+                    <input
+                        type="search"
+                        id="timelineSearch"
+                        class="timeline-search"
+                        placeholder="Buscar evento, categoria, segmento ou descrição..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        id="timelineSearchClear"
+                        class="timeline-search-clear"
+                        aria-label="Limpar busca"
+                        title="Limpar busca">×</button>
+                </div>
+
+                <span class="filter-summary" id="filterSummary"></span>
+            </div>
+
+        </div>
+
        <div class="timeline-area">
 
     <button
@@ -1700,6 +1895,170 @@ body{
 <script>
 
 let events = [];
+
+let filtroSegmento = "Todos";
+let filtroCategoria = "Todos";
+let termoBusca = "";
+
+function normalizarBusca(valor){
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+function getFilteredEventEntries(){
+
+    const busca = normalizarBusca(termoBusca);
+
+    return events
+        .map((event, originalIndex) => ({ event, originalIndex }))
+        .filter(({event}) => {
+
+            const segmentos =
+                event.segments ||
+                (event.segment ? [event.segment] : []);
+
+            const segmentoOk =
+                filtroSegmento === "Todos" ||
+                segmentos.includes(filtroSegmento);
+
+            const categoriaOk =
+                filtroCategoria === "Todos" ||
+                event.category === filtroCategoria;
+
+            if(!segmentoOk || !categoriaOk){
+                return false;
+            }
+
+            if(!busca){
+                return true;
+            }
+
+            const textoPesquisavel = normalizarBusca([
+                event.title,
+                event.description,
+                event.category,
+                segmentos.join(" "),
+                event.date,
+                event.endDate
+            ].join(" "));
+
+            return textoPesquisavel.includes(busca);
+        });
+}
+
+function atualizarResumoFiltros(totalFiltrado){
+
+    const resumo =
+        document.getElementById("filterSummary");
+
+    if(!resumo) return;
+
+    const temFiltro =
+        filtroSegmento !== "Todos" ||
+        filtroCategoria !== "Todos" ||
+        termoBusca.trim() !== "";
+
+    resumo.textContent = temFiltro
+        ? `${totalFiltrado} de ${events.length} eventos exibidos`
+        : "";
+}
+
+function atualizarEstadoVisualFiltros(){
+
+    document
+        .querySelectorAll("[data-segment-filter]")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.segmentFilter === filtroSegmento
+            );
+        });
+
+    document
+        .querySelectorAll("[data-category-filter]")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.categoryFilter === filtroCategoria
+            );
+        });
+
+    const limparBusca =
+        document.getElementById("timelineSearchClear");
+
+    if(limparBusca){
+        limparBusca.classList.toggle(
+            "visible",
+            termoBusca.trim() !== ""
+        );
+    }
+}
+
+function aplicarFiltrosERenderizar(){
+    atualizarEstadoVisualFiltros();
+    render();
+
+    if(!isMobileTimeline()){
+        const scroll = document.getElementById("timelineScroll");
+        if(scroll){
+            scroll.scrollTo({
+                left:0,
+                behavior:"smooth"
+            });
+        }
+    }
+}
+
+function configurarFiltrosTimeline(){
+
+    document
+        .querySelectorAll("[data-segment-filter]")
+        .forEach(button => {
+            button.addEventListener("click", function(){
+                filtroSegmento = this.dataset.segmentFilter;
+                aplicarFiltrosERenderizar();
+            });
+        });
+
+    document
+        .querySelectorAll("[data-category-filter]")
+        .forEach(button => {
+            button.addEventListener("click", function(){
+                filtroCategoria = this.dataset.categoryFilter;
+                aplicarFiltrosERenderizar();
+            });
+        });
+
+    const buscaInput =
+        document.getElementById("timelineSearch");
+
+    const limparBusca =
+        document.getElementById("timelineSearchClear");
+
+    if(buscaInput){
+        buscaInput.addEventListener("input", function(){
+            termoBusca = this.value;
+            aplicarFiltrosERenderizar();
+        });
+    }
+
+    if(limparBusca){
+        limparBusca.addEventListener("click", function(){
+            termoBusca = "";
+            if(buscaInput){
+                buscaInput.value = "";
+                buscaInput.focus();
+            }
+            aplicarFiltrosERenderizar();
+        });
+    }
+
+    atualizarEstadoVisualFiltros();
+}
+
 
     /* ==========================================================
    ACESSO ADMINISTRATIVO
@@ -2080,9 +2439,9 @@ function renderMobileDateBlock(event){
     `;
 }
 
-function renderMobileEventCard(event, index){
+function renderMobileEventCard(event, originalIndex, visualIndex){
 
-    const lado = index % 2 === 0 ? "left" : "right";
+    const lado = visualIndex % 2 === 0 ? "left" : "right";
     const segmentos = (event.segments || []).join(", ");
     const corEvento = event.color || "#35b86b";
 
@@ -2117,13 +2476,13 @@ function renderMobileEventCard(event, index){
                         <div class="event-actions">
                             <button
                                 class="small-btn edit-btn"
-                                onclick="editEvent(${index})">
+                                onclick="editEvent(${originalIndex})">
                                 ✏️ Editar
                             </button>
 
                             <button
                                 class="small-btn delete-btn"
-                                onclick="removeEvent(${index})">
+                                onclick="removeEvent(${originalIndex})">
                                 🗑 Excluir
                             </button>
                         </div>
@@ -2140,14 +2499,25 @@ function renderMobileEventCard(event, index){
     `;
 }
 
-function renderTimelineMobile(){
+function renderTimelineMobile(filteredEntries){
 
     const timeline = document.getElementById("timeline");
 
     timeline.className = "timeline timeline-mobile";
 
-    timeline.innerHTML = events
-        .map((event, index) => renderMobileEventCard(event, index))
+    if(filteredEntries.length === 0){
+        timeline.innerHTML = `
+            <div class="empty">
+                Nenhum evento encontrado com os filtros atuais.
+            </div>
+        `;
+        return;
+    }
+
+    timeline.innerHTML = filteredEntries
+        .map(({event, originalIndex}, visualIndex) =>
+            renderMobileEventCard(event, originalIndex, visualIndex)
+        )
         .join("");
 }
 
@@ -2159,70 +2529,105 @@ function render(){
 
     events.sort((a,b) => a.date.localeCompare(b.date));
 
-    contador.textContent = `${events.length} ${events.length === 1 ? "evento" : "eventos"}`;
+    const filteredEntries = getFilteredEventEntries();
+
+    contador.textContent =
+        `${filteredEntries.length} ${filteredEntries.length === 1 ? "evento" : "eventos"}`;
+
+    atualizarResumoFiltros(filteredEntries.length);
 
     if(isMobileTimeline()){
-    renderTimelineMobile();
-    return;
-}
+        renderTimelineMobile(filteredEntries);
+        return;
+    }
 
-    if(events.length === 0){
-        timeline.innerHTML = `<div class="empty">Nenhum evento cadastrado ainda.<br>Use o formulário abaixo para começar.</div>`;
+    // Garante que o desktop volte ao layout horizontal após resize.
+    timeline.className = "timeline";
+
+    if(filteredEntries.length === 0){
+        timeline.innerHTML = `
+            <div class="empty">
+                Nenhum evento encontrado com os filtros atuais.
+            </div>
+        `;
         timeline.style.display = "block";
+        atualizarBotoesTimeline();
         return;
     }
 
     timeline.style.display = "flex";
 
-    // Agrupa os eventos pela mesma data, para que exista apenas
-    // um ponto na linha do tempo para cada dia.
+    // Agrupa somente os eventos filtrados pela mesma data.
     const groups = [];
     const groupMap = new Map();
 
-    events.forEach((event, index) => {
-        if (!groupMap.has(event.date)) {
-            const group = { date: event.date, events: [] };
+    filteredEntries.forEach(({event, originalIndex}) => {
+        if(!groupMap.has(event.date)){
+            const group = { date:event.date, events:[] };
             groupMap.set(event.date, group);
             groups.push(group);
         }
-        groupMap.get(event.date).events.push({event, index});
+
+        groupMap
+            .get(event.date)
+            .events
+            .push({event, originalIndex});
     });
 
     timeline.innerHTML = groups.map(group => `
         <div class="date-group" data-date="${group.date}">
-            <div class="event-dot" style="--event-color:${group.events[0].event.color || '#35b86b'}"></div>
+            <div
+                class="event-dot"
+                style="--event-color:${group.events[0].event.color || '#35b86b'}">
+            </div>
+
             <div class="date-events">
-                ${group.events.map(({event, index}) => `
-                    <div class="event-card ${event.endDate ? 'period-card' : ''}" style="--event-color:${event.color || '#35b86b'}">
-                            ${renderEventDate(event)}
-                        <div class="event-title">${escapeHtml(event.title)}</div>
+                ${group.events.map(({event, originalIndex}) => `
+                    <div
+                        class="event-card ${event.endDate ? 'period-card' : ''}"
+                        style="--event-color:${event.color || '#35b86b'}">
+
+                        ${renderEventDate(event)}
+
+                        <div class="event-title">
+                            ${escapeHtml(event.title)}
+                        </div>
+
                         <div class="event-desc">
                             <b>${escapeHtml(event.category)}</b> •
-                            <b>${escapeHtml((event.segments || (event.segment ? [event.segment] : [])).join(", ") || "—")}</b><br>
+                            <b>${escapeHtml(
+                                (
+                                    event.segments ||
+                                    (event.segment ? [event.segment] : [])
+                                ).join(", ") || "—"
+                            )}</b><br>
+
                             ${escapeHtml(event.description || "")}
                         </div>
-                        
-                        ${isAdmin ? `
-    <div class="event-actions">
-        <button
-            class="small-btn edit-btn"
-            onclick="editEvent(${index})">
-            ✏️ Editar
-        </button>
 
-        <button
-            class="small-btn delete-btn"
-            onclick="removeEvent(${index})">
-            🗑 Excluir
-        </button>
-    </div>
-` : ""}
-                        </div>
+                        ${isAdmin ? `
+                            <div class="event-actions">
+                                <button
+                                    class="small-btn edit-btn"
+                                    onclick="editEvent(${originalIndex})">
+                                    ✏️ Editar
+                                </button>
+
+                                <button
+                                    class="small-btn delete-btn"
+                                    onclick="removeEvent(${originalIndex})">
+                                    🗑 Excluir
+                                </button>
+                            </div>
+                        ` : ""}
+
                     </div>
                 `).join("")}
             </div>
         </div>
     `).join("");
+
+    setTimeout(atualizarBotoesTimeline, 0);
 }
 
 function escapeHtml(text){
@@ -2544,8 +2949,9 @@ slider.addEventListener("mousemove",e=>{
 document.getElementById("cor-verde").checked = true;
 
 atualizarModoAdmin();
+configurarFiltrosTimeline();
 
-    
+
 carregarEventosDoSupabase();
 
 /* ==========================================================
