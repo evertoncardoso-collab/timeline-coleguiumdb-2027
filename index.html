@@ -1077,6 +1077,89 @@ body{
     }
 }
 
+/* ==========================================================
+   CORREÇÃO DA TIMELINE VERTICAL MOBILE
+========================================================== */
+@media (max-width:700px){
+
+    /* Linha central vertical */
+    .timeline.timeline-mobile::before{
+        content:"";
+        position:absolute;
+
+        top:0 !important;
+        bottom:0 !important;
+
+        left:50% !important;
+        right:auto !important;
+
+        width:4px !important;
+        height:auto !important;
+
+        transform:translateX(-50%) !important;
+
+        background:#dfe6e3 !important;
+        border-radius:999px;
+
+        z-index:0;
+    }
+
+
+    /* Todos os elementos de um evento
+       devem obrigatoriamente ficar na mesma linha */
+    .mobile-card-wrap,
+    .mobile-center,
+    .mobile-empty{
+        grid-row:1 !important;
+    }
+
+
+    /* EVENTO DO LADO ESQUERDO */
+    .mobile-item.left .mobile-card-wrap{
+        grid-column:1 !important;
+    }
+
+    .mobile-item.left .mobile-center{
+        grid-column:2 !important;
+    }
+
+    .mobile-item.left .mobile-empty{
+        grid-column:3 !important;
+    }
+
+
+    /* EVENTO DO LADO DIREITO */
+    .mobile-item.right .mobile-empty{
+        grid-column:1 !important;
+    }
+
+    .mobile-item.right .mobile-center{
+        grid-column:2 !important;
+    }
+
+    .mobile-item.right .mobile-card-wrap{
+        grid-column:3 !important;
+    }
+
+
+    /* Bolinha sempre sobre a linha */
+    .mobile-center{
+        position:relative;
+        z-index:3;
+        align-self:center;
+    }
+
+    .mobile-node{
+        position:relative;
+        z-index:4;
+    }
+
+    /* Cards e conectores acima da linha central */
+    .mobile-card-wrap{
+        z-index:2;
+    }
+}
+
     
 </style>
 </head>
