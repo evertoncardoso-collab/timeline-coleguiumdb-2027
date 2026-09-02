@@ -1160,6 +1160,58 @@ body{
     }
 }
 
+    /* ==========================================================
+   BOTÃO FLUTUANTE DE LOGIN - SOMENTE MOBILE
+========================================================== */
+
+.mobile-login-btn{
+    display:none;
+}
+
+@media (max-width:700px){
+
+    .mobile-login-btn{
+        position:fixed;
+        right:16px;
+        bottom:18px;
+        z-index:999;
+
+        width:52px;
+        height:52px;
+
+        display:flex;
+        align-items:center;
+        justify-content:center;
+
+        border:none;
+        border-radius:50%;
+
+        background:rgba(22,131,74,.82);
+        color:white;
+
+        font-size:22px;
+
+        box-shadow:0 6px 18px rgba(0,0,0,.22);
+        backdrop-filter:blur(6px);
+
+        cursor:pointer;
+
+        transition:
+            transform .2s ease,
+            opacity .2s ease,
+            background .2s ease;
+    }
+
+    .mobile-login-btn:active{
+        transform:scale(.92);
+    }
+
+    /* quando estiver logado, não precisamos mostrar */
+    body.admin-logado .mobile-login-btn{
+        display:none;
+    }
+}
+
     
 </style>
 </head>
@@ -1435,6 +1487,11 @@ function atualizarModoAdmin(){
 
     adminPanel.style.display =
         isAdmin ? "block" : "none";
+
+    document.body.classList.toggle(
+    "admin-logado",
+    isAdmin
+);
 }
 
 
@@ -2311,12 +2368,45 @@ window.addEventListener("resize", function(){
         }
     }, 180);
 });
+
+    /* ==========================================================
+   BOTÃO MOBILE → LOGIN
+========================================================== */
+
+const mobileLoginBtn =
+    document.getElementById("mobileLoginBtn");
+
+mobileLoginBtn.addEventListener("click", function(){
+
+    const loginBox =
+        document.getElementById("loginBox");
+
+    if(!loginBox) return;
+
+    loginBox.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+    });
+
+    setTimeout(() => {
+        document.getElementById("adminUser")?.focus();
+    }, 600);
+});
     
 </script>
 
 <footer class="site-footer">
     Página desenvolvida por Everton Douglas &amp; CGpt ❤️
 </footer>
+
+    <button
+    type="button"
+    id="mobileLoginBtn"
+    class="mobile-login-btn"
+    aria-label="Ir para login administrativo"
+    title="Acesso administrativo">
+    🔐
+</button>
     
 </body>
 </html>
