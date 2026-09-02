@@ -1212,6 +1212,196 @@ body{
     }
 }
 
+
+    /* ==========================================================
+   IMPRESSÃO DO CALENDÁRIO
+========================================================== */
+
+.timeline-title-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.print-calendar-btn{
+    border:0;
+    border-radius:30px;
+    padding:8px 14px;
+
+    background:#1976d2;
+    color:#fff;
+
+    font-size:12px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:0 3px 10px #00000018;
+    transition:.2s;
+}
+
+.print-calendar-btn:hover{
+    background:#125fae;
+    transform:translateY(-1px);
+}
+
+
+.print-modal{
+    display:none;
+
+    position:fixed;
+    inset:0;
+
+    z-index:5000;
+
+    background:rgba(15,28,22,.50);
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    backdrop-filter:blur(4px);
+}
+
+.print-modal.open{
+    display:flex;
+}
+
+.print-dialog{
+    position:relative;
+
+    width:min(620px, 96%);
+    padding:30px;
+
+    background:#fff;
+
+    border-radius:22px;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+
+    text-align:center;
+}
+
+.print-close{
+    position:absolute;
+
+    right:15px;
+    top:12px;
+
+    width:38px;
+    height:38px;
+
+    border:0;
+    border-radius:50%;
+
+    background:#f1f4f2;
+
+    font-size:24px;
+    cursor:pointer;
+}
+
+.print-icon{
+    font-size:34px;
+    margin-bottom:6px;
+}
+
+.print-dialog h3{
+    margin:0;
+    font-size:24px;
+}
+
+.print-subtitle{
+    margin:8px 0 22px;
+    color:#69756e;
+}
+
+.print-options{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.print-option{
+    min-height:125px;
+
+    border:2px solid #e0e7e3;
+    border-radius:15px;
+
+    background:#fafcfb;
+
+    padding:18px 12px;
+
+    cursor:pointer;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    transition:.2s;
+}
+
+.print-option:hover{
+    border-color:#35b86b;
+    background:#f0faf4;
+    transform:translateY(-2px);
+}
+
+.print-option strong{
+    font-size:14px;
+    color:#24312a;
+}
+
+.print-option span{
+    font-size:12px;
+    line-height:1.4;
+    color:#718078;
+}
+
+.print-note{
+    margin-top:18px;
+    font-size:11px;
+    color:#7c8982;
+}
+
+
+@media(max-width:700px){
+
+    .timeline-title-actions{
+        gap:5px;
+    }
+
+    .print-calendar-btn{
+        width:38px;
+        height:38px;
+
+        padding:0;
+
+        border-radius:50%;
+
+        font-size:0;
+    }
+
+    .print-calendar-btn::before{
+        content:"🖨️";
+        font-size:18px;
+    }
+
+    .print-options{
+        grid-template-columns:1fr;
+    }
+
+    .print-option{
+        min-height:82px;
+    }
+
+    .print-dialog{
+        padding:26px 18px 20px;
+    }
+}
     
 </style>
 </head>
@@ -1229,9 +1419,19 @@ body{
 
     <section class="timeline-box">
         <div class="timeline-title">
-            <h2>📅 Eventos de 2027</h2>
-            <span class="contador" id="contador">0 eventos</span>
-        </div>
+    <h2>📅 Eventos de 2027</h2>
+
+    <div class="timeline-title-actions">
+        <span class="contador" id="contador">0 eventos</span>
+
+        <button
+            type="button"
+            class="print-calendar-btn"
+            id="printCalendarBtn">
+            🖨️ Imprimir calendário
+        </button>
+    </div>
+</div>
 
        <div class="timeline-area">
 
@@ -1260,6 +1460,66 @@ body{
 </div>
         
     </section>
+
+
+    <div class="print-modal" id="printModal">
+
+    <div class="print-dialog">
+
+        <button
+            type="button"
+            class="print-close"
+            id="printClose">
+            ×
+        </button>
+
+        <div class="print-icon">🖨️</div>
+
+        <h3>Imprimir calendário</h3>
+
+        <p class="print-subtitle">
+            Escolha como deseja distribuir o calendário em folhas A4.
+        </p>
+
+        <div class="print-options">
+
+            <button
+                type="button"
+                class="print-option"
+                data-print-mode="annual">
+
+                <strong>📅 Calendário completo</strong>
+                <span>12 meses em 1 folha A4</span>
+            </button>
+
+            <button
+                type="button"
+                class="print-option"
+                data-print-mode="semester">
+
+                <strong>📆 Calendário semestral</strong>
+                <span>6 meses por folha • 2 folhas A4</span>
+            </button>
+
+            <button
+                type="button"
+                class="print-option"
+                data-print-mode="quarter">
+
+                <strong>🗓️ Calendário trimestral</strong>
+                <span>3 meses por folha • 4 folhas A4</span>
+            </button>
+
+        </div>
+
+        <div class="print-note">
+            Formato: A4 paisagem. Também pode ser salvo como PDF.
+        </div>
+
+    </div>
+
+</div>
+    
 
    <section class="login-box" id="loginBox">
     <h3>🔐 Acesso administrativo</h3>
@@ -2404,6 +2664,906 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 
 });
+
+
+/* ==========================================================
+   GERADOR DE CALENDÁRIO A4
+========================================================== */
+
+const PRINT_YEAR = 2027;
+
+const printModal =
+    document.getElementById("printModal");
+
+const printCalendarBtn =
+    document.getElementById("printCalendarBtn");
+
+const printClose =
+    document.getElementById("printClose");
+
+
+printCalendarBtn.addEventListener("click", function(){
+
+    printModal.classList.add("open");
+
+});
+
+
+printClose.addEventListener("click", function(){
+
+    printModal.classList.remove("open");
+
+});
+
+
+printModal.addEventListener("click", function(e){
+
+    if(e.target === printModal){
+        printModal.classList.remove("open");
+    }
+
+});
+
+
+document
+.querySelectorAll("[data-print-mode]")
+.forEach(button => {
+
+    button.addEventListener("click", function(){
+
+        const mode =
+            this.dataset.printMode;
+
+        printModal.classList.remove("open");
+
+        gerarCalendarioImpressao(mode);
+
+    });
+
+});
+
+
+function getPrintMonthName(month){
+
+    return [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro"
+    ][month];
+
+}
+
+
+function getPrintDateParts(dateString){
+
+    const [ano, mes, dia] =
+        dateString.split("-");
+
+    return {
+        ano:Number(ano),
+        mes:Number(mes),
+        dia:Number(dia)
+    };
+
+}
+
+
+function formatPrintDate(event){
+
+    const inicio =
+        getPrintDateParts(event.date);
+
+    if(!event.endDate){
+
+        return String(inicio.dia).padStart(2,"0");
+
+    }
+
+    const fim =
+        getPrintDateParts(event.endDate);
+
+    if(
+        inicio.ano === fim.ano &&
+        inicio.mes === fim.mes
+    ){
+
+        return (
+            String(inicio.dia).padStart(2,"0") +
+            "–" +
+            String(fim.dia).padStart(2,"0")
+        );
+
+    }
+
+    return (
+        String(inicio.dia).padStart(2,"0") +
+        "/" +
+        String(inicio.mes).padStart(2,"0") +
+        "–" +
+        String(fim.dia).padStart(2,"0") +
+        "/" +
+        String(fim.mes).padStart(2,"0")
+    );
+
+}
+
+
+function eventosPrintDoMes(month){
+
+    return events
+        .filter(event => {
+
+            const data =
+                getPrintDateParts(event.date);
+
+            return (
+                data.ano === PRINT_YEAR &&
+                data.mes === month + 1
+            );
+
+        })
+        .sort(
+            (a,b) =>
+                a.date.localeCompare(b.date)
+        );
+
+}
+
+
+function renderPrintMonth(month, mode){
+
+    const monthEvents =
+        eventosPrintDoMes(month);
+
+    const crowdedClass =
+        monthEvents.length >= 9
+            ? " very-crowded"
+            : monthEvents.length >= 6
+                ? " crowded"
+                : "";
+
+    const eventHtml =
+        monthEvents.length
+        ? monthEvents.map(event => {
+
+            const segmentos =
+                (event.segments || []).join(", ");
+
+            const cor =
+                /^#[0-9a-f]{6}$/i.test(event.color || "")
+                    ? event.color
+                    : "#35b86b";
+
+            return `
+                <div
+                    class="print-event"
+                    style="--event-color:${cor}">
+
+                    <div class="print-event-main">
+
+                        <span class="print-event-date">
+                            ${formatPrintDate(event)}
+                        </span>
+
+                        <span class="print-event-title">
+                            ${escapeHtml(event.title)}
+                        </span>
+
+                    </div>
+
+                    <div class="print-event-meta">
+                        ${escapeHtml(event.category || "")}
+                        ${segmentos
+                            ? " • " + escapeHtml(segmentos)
+                            : ""}
+                    </div>
+
+                    ${
+                        event.description
+                        ? `
+                            <div class="print-event-desc">
+                                ${escapeHtml(event.description)}
+                            </div>
+                          `
+                        : ""
+                    }
+
+                </div>
+            `;
+
+        }).join("")
+        : `
+            <div class="print-empty">
+                Nenhum evento
+            </div>
+        `;
+
+    return `
+        <section class="print-month${crowdedClass}">
+
+            <div class="print-month-title">
+                ${getPrintMonthName(month)}
+            </div>
+
+            <div class="print-month-events">
+                ${eventHtml}
+            </div>
+
+        </section>
+    `;
+
+}
+
+
+function getPrintConfiguration(mode){
+
+    if(mode === "semester"){
+
+        return {
+            cssClass:"semester",
+            columns:3,
+            rows:2,
+
+            pages:[
+                {
+                    title:"1º Semestre",
+                    months:[0,1,2,3,4,5]
+                },
+                {
+                    title:"2º Semestre",
+                    months:[6,7,8,9,10,11]
+                }
+            ]
+        };
+
+    }
+
+
+    if(mode === "quarter"){
+
+        return {
+            cssClass:"quarter",
+            columns:3,
+            rows:1,
+
+            pages:[
+                {
+                    title:"1º Trimestre",
+                    months:[0,1,2]
+                },
+                {
+                    title:"2º Trimestre",
+                    months:[3,4,5]
+                },
+                {
+                    title:"3º Trimestre",
+                    months:[6,7,8]
+                },
+                {
+                    title:"4º Trimestre",
+                    months:[9,10,11]
+                }
+            ]
+        };
+
+    }
+
+
+    return {
+        cssClass:"annual",
+        columns:4,
+        rows:3,
+
+        pages:[
+            {
+                title:"Calendário Completo",
+                months:[
+                    0,1,2,3,
+                    4,5,6,7,
+                    8,9,10,11
+                ]
+            }
+        ]
+    };
+
+}
+
+
+function gerarCalendarioImpressao(mode){
+
+    const config =
+        getPrintConfiguration(mode);
+
+    const eventosAno =
+        events.filter(event =>
+            event.date.startsWith(
+                PRINT_YEAR + "-"
+            )
+        );
+
+    if(!eventosAno.length){
+
+        alert(
+            `Não existem eventos cadastrados para ${PRINT_YEAR}.`
+        );
+
+        return;
+    }
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if(!printWindow){
+
+        alert(
+            "O navegador bloqueou a janela de impressão. Libere pop-ups para este site."
+        );
+
+        return;
+    }
+
+
+    const pagesHtml =
+        config.pages.map(
+            (page, pageIndex) => {
+
+        return `
+            <main
+                class="print-page ${config.cssClass}"
+                style="
+                    --print-columns:${config.columns};
+                    --print-rows:${config.rows};
+                "
+            >
+
+                <header class="print-header">
+
+                    <div>
+                        <div class="print-school">
+                            COLEGUIUM DOM BOSCO PARAUAPEBAS
+                        </div>
+
+                        <h1>
+                            Calendário Escolar ${PRINT_YEAR}
+                        </h1>
+                    </div>
+
+                    <div class="print-period">
+                        ${page.title}
+                    </div>
+
+                </header>
+
+
+                <div class="print-grid">
+
+                    ${page.months
+                        .map(month =>
+                            renderPrintMonth(
+                                month,
+                                mode
+                            )
+                        )
+                        .join("")
+                    }
+
+                </div>
+
+
+                <footer class="print-footer">
+
+                    <span>
+                        Timeline Coleguium Dom Bosco Parauapebas
+                    </span>
+
+                    <span>
+                        Página ${pageIndex + 1}
+                        de ${config.pages.length}
+                    </span>
+
+                </footer>
+
+            </main>
+        `;
+
+    }).join("");
+
+
+    printWindow.document.open();
+
+    printWindow.document.write(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Calendário Escolar ${PRINT_YEAR}
+</title>
+
+<style>
+
+@page{
+    size:A4 landscape;
+    margin:8mm;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color:#24312a;
+
+    background:#fff;
+
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+}
+
+
+/* Barra que aparece apenas na tela */
+
+.print-toolbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:12px;
+
+    padding:12px;
+
+    background:#183a2b;
+    color:#fff;
+
+    font-size:13px;
+}
+
+.print-toolbar button{
+    border:0;
+    border-radius:8px;
+
+    padding:9px 16px;
+
+    background:#35b86b;
+    color:#fff;
+
+    font-weight:bold;
+    cursor:pointer;
+}
+
+
+/* Folha */
+
+.print-page{
+
+    height:190mm;
+
+    display:flex;
+    flex-direction:column;
+
+    break-after:page;
+    page-break-after:always;
+}
+
+.print-page:last-child{
+    break-after:auto;
+    page-break-after:auto;
+}
+
+
+/* Cabeçalho */
+
+.print-header{
+    height:16mm;
+
+    flex:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    border-bottom:1.2mm solid #1976d2;
+
+    padding:0 1mm 2.5mm;
+}
+
+.print-school{
+    color:#1976d2;
+
+    font-size:7pt;
+    font-weight:bold;
+
+    letter-spacing:.5px;
+}
+
+.print-header h1{
+    margin:1mm 0 0;
+
+    font-size:16pt;
+    line-height:1;
+}
+
+.print-period{
+    padding:2.2mm 4mm;
+
+    background:#e9f8ef;
+    color:#16834a;
+
+    border-radius:20mm;
+
+    font-size:9pt;
+    font-weight:bold;
+}
+
+
+/* Grade de meses */
+
+.print-grid{
+
+    flex:1;
+    min-height:0;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            var(--print-columns),
+            minmax(0,1fr)
+        );
+
+    grid-template-rows:
+        repeat(
+            var(--print-rows),
+            minmax(0,1fr)
+        );
+
+    gap:3mm;
+
+    padding:4mm 0 3mm;
+}
+
+
+/* Mês */
+
+.print-month{
+
+    min-width:0;
+    min-height:0;
+
+    display:flex;
+    flex-direction:column;
+
+    border:.35mm solid #dce5e0;
+
+    border-radius:2.5mm;
+
+    overflow:hidden;
+
+    background:#fff;
+}
+
+.print-month-title{
+
+    flex:none;
+
+    padding:2mm 2.5mm;
+
+    background:#edf5ff;
+
+    border-bottom:.3mm solid #d8e4ef;
+
+    color:#145ba0;
+
+    font-size:10pt;
+    font-weight:bold;
+}
+
+.print-month-events{
+
+    min-height:0;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:1.2mm;
+
+    padding:1.8mm 2mm;
+}
+
+
+/* Evento */
+
+.print-event{
+
+    padding-left:1.8mm;
+
+    border-left:1.2mm solid
+        var(--event-color);
+
+    line-height:1.15;
+}
+
+.print-event-main{
+
+    display:flex;
+    gap:1.5mm;
+
+    align-items:flex-start;
+}
+
+.print-event-date{
+
+    min-width:8mm;
+
+    color:var(--event-color);
+
+    font-size:7.2pt;
+    font-weight:bold;
+}
+
+.print-event-title{
+
+    font-size:7.5pt;
+    font-weight:bold;
+
+    overflow-wrap:anywhere;
+}
+
+.print-event-meta{
+
+    margin-top:.5mm;
+
+    color:#5f6b65;
+
+    font-size:6.4pt;
+}
+
+.print-event-desc{
+
+    margin-top:.5mm;
+
+    color:#738079;
+
+    font-size:6.2pt;
+
+    line-height:1.18;
+}
+
+.print-empty{
+
+    padding:4mm;
+
+    text-align:center;
+
+    color:#a0aaa5;
+
+    font-size:7pt;
+}
+
+
+/* Calendário anual: máxima compactação */
+
+.annual .print-event-meta,
+.annual .print-event-desc{
+    display:none;
+}
+
+.annual .print-month-title{
+    padding:1.4mm 2mm;
+    font-size:8.6pt;
+}
+
+.annual .print-month-events{
+    gap:.8mm;
+    padding:1.2mm 1.4mm;
+}
+
+.annual .print-event-date{
+    min-width:6.5mm;
+    font-size:6.1pt;
+}
+
+.annual .print-event-title{
+    font-size:6.4pt;
+}
+
+
+/* Semestral */
+
+.semester .print-event-desc{
+    display:none;
+}
+
+.semester .print-event-title{
+    font-size:7.7pt;
+}
+
+
+/* Trimestral */
+
+.quarter .print-month-title{
+    font-size:13pt;
+    padding:3mm;
+}
+
+.quarter .print-month-events{
+    gap:2.3mm;
+    padding:3mm;
+}
+
+.quarter .print-event{
+    padding-left:2.5mm;
+}
+
+.quarter .print-event-date{
+    min-width:11mm;
+    font-size:9pt;
+}
+
+.quarter .print-event-title{
+    font-size:9.5pt;
+}
+
+.quarter .print-event-meta{
+    font-size:7.5pt;
+}
+
+.quarter .print-event-desc{
+    font-size:7.2pt;
+}
+
+
+/* Muitos eventos no mesmo mês */
+
+.print-month.crowded
+.print-month-events{
+    gap:.6mm;
+}
+
+.print-month.crowded
+.print-event-title{
+    font-size:6.5pt;
+}
+
+.print-month.crowded
+.print-event-meta{
+    font-size:5.8pt;
+}
+
+.print-month.very-crowded
+.print-month-events{
+    gap:.35mm;
+    padding-top:1mm;
+    padding-bottom:1mm;
+}
+
+.print-month.very-crowded
+.print-event-title{
+    font-size:5.8pt;
+}
+
+.print-month.very-crowded
+.print-event-meta,
+.print-month.very-crowded
+.print-event-desc{
+    display:none;
+}
+
+
+/* Rodapé */
+
+.print-footer{
+
+    height:7mm;
+
+    flex:none;
+
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+
+    border-top:.25mm solid #dce5e0;
+
+    color:#78857e;
+
+    font-size:6.5pt;
+
+    padding-top:1.5mm;
+}
+
+
+/* Impressão */
+
+@media print{
+
+    .print-toolbar{
+        display:none !important;
+    }
+
+    body{
+        background:#fff;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="print-toolbar">
+
+    <span>
+        A4 paisagem • ${config.pages.length}
+        ${config.pages.length === 1 ? "folha" : "folhas"}
+    </span>
+
+    <button onclick="window.print()">
+        🖨️ Imprimir / Salvar PDF
+    </button>
+
+</div>
+
+${pagesHtml}
+
+<script>
+
+window.addEventListener(
+    "load",
+    function(){
+
+        setTimeout(
+            function(){
+                window.print();
+            },
+            350
+        );
+
+    }
+);
+
+<\/script>
+
+</body>
+</html>
+    `);
+
+    printWindow.document.close();
+
+}
+    
     
 </script>
 
