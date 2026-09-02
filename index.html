@@ -2814,7 +2814,7 @@ function eventTouchesMonth(event, year, monthIndex){
     return event.date <= fimMes && fimEvento >= inicioMes;
 }
 
-function buildMonthMatrix(year, monthIndex){
+function buildMonthMatrix(year, monthIndex, forceSixWeeks = true){
 
     const primeiroDia = new Date(year, monthIndex, 1, 12);
     const diasNoMes = new Date(year, monthIndex + 1, 0).getDate();
@@ -2840,6 +2840,7 @@ function buildMonthMatrix(year, monthIndex){
         });
     }
 
+    // Completa somente a última semana
     while(cells.length % 7 !== 0){
         cells.push({
             day: "",
@@ -2848,12 +2849,16 @@ function buildMonthMatrix(year, monthIndex){
         });
     }
 
-    while(cells.length < 42){
-        cells.push({
-            day: "",
-            date: "",
-            inCurrentMonth: false
-        });
+    // Semestral e trimestral continuam com 6 semanas,
+    // exatamente como já estavam.
+    if(forceSixWeeks){
+        while(cells.length < 42){
+            cells.push({
+                day: "",
+                date: "",
+                inCurrentMonth: false
+            });
+        }
     }
 
     const weeks = [];
@@ -2971,7 +2976,13 @@ function renderPrintLegendItem(event, mode){
 
 function renderPrintMonth(month, mode){
 
-    const weeks = buildMonthMatrix(PRINT_YEAR, month);
+ const forceSixWeeks = mode !== "annual";
+
+const weeks = buildMonthMatrix(
+    PRINT_YEAR,
+    month,
+    forceSixWeeks
+);
     const monthEvents = getPrintEventsForMonth(month);
 
     const crowdedClass =
@@ -3002,7 +3013,9 @@ function renderPrintMonth(month, mode){
                     `).join("")}
                 </div>
 
-                <div class="print-days">
+               <div
+    class="print-days"
+    style="--week-rows:${weeks.length}">
                     ${weeks.flat().map(cell => renderPrintDayCell(cell)).join("")}
                 </div>
 
@@ -3407,7 +3420,7 @@ body{
 .print-days{
     display:grid;
     grid-template-columns:repeat(7, 1fr);
-    grid-template-rows:repeat(6, 1fr);
+    grid-template-rows:repeat(var(--week-rows, 6), 1fr);
     gap:.45mm;
 }
 
@@ -3530,47 +3543,135 @@ body{
 }
 
 
-/* Completo: 12 meses em 1 página */
+/* ==========================================================
+   COMPLETO - 12 MESES EM UMA ÚNICA FOLHA
+========================================================== */
 
-.annual .print-month-title{
-    font-size:8.8pt;
-    padding:1.2mm 1.8mm;
+/* Cabeçalho menor para ganhar área útil */
+.annual .print-header{
+    height:12mm;
 }
 
+.annual .print-header h1{
+    font-size:13pt;
+}
+
+.annual .print-school{
+    font-size:6pt;
+}
+
+.annual .print-period{
+    padding:1.5mm 3mm;
+    font-size:7pt;
+}
+
+
+/* Aproveita melhor a página */
+.annual .print-grid{
+    gap:2mm;
+    padding:2mm 0;
+}
+
+
+/* Nome do mês */
+.annual .print-month-title{
+    font-size:8.2pt;
+    padding:.9mm 1.5mm;
+}
+
+
+/* Área do calendário */
 .annual .print-month-calendar{
-    padding:1.1mm 1.2mm .8mm;
+    padding:.7mm 1mm .5mm;
+}
+
+.annual .print-weekdays{
+    gap:.2mm;
+    margin-bottom:.3mm;
 }
 
 .annual .print-weekday{
-    font-size:5.6pt;
+    font-size:5.1pt;
+}
+
+
+/* Dias mais compactos */
+.annual .print-days{
+    gap:.25mm;
 }
 
 .annual .print-day{
-    min-height:5.3mm;
-    padding:.45mm;
+    min-height:3.8mm;
+    padding:.25mm .35mm;
 }
 
 .annual .print-day-num{
-    font-size:5.5pt;
+    font-size:5pt;
+}
+
+.annual .print-day-markers{
+    min-height:1.2mm;
+    gap:.25mm;
 }
 
 .annual .print-day-dot{
-    width:1.2mm;
-    height:1.2mm;
+    width:1mm;
+    height:1mm;
 }
 
+.annual .print-day-more{
+    font-size:4pt;
+}
+
+
+/* Mais espaço para a legenda */
 .annual .print-month-legend{
-    gap:.55mm;
-    padding:.8mm 1.2mm 1.1mm;
+    flex:1;
+
+    gap:.35mm;
+
+    padding:
+        .6mm
+        1mm
+        .8mm;
+}
+
+
+/* Legendas bem compactas,
+   mas ainda legíveis */
+.annual .print-legend-item{
+    gap:.7mm;
+}
+
+.annual .print-legend-marker{
+    width:1.5mm;
+    height:1.5mm;
+
+    margin-top:.15mm;
 }
 
 .annual .print-legend-line{
-    font-size:5.3pt;
+    font-size:4.8pt;
+    line-height:1.08;
 }
 
 .annual .print-legend-meta,
 .annual .print-legend-desc{
     display:none;
+}
+
+
+/* Mês sem eventos */
+.annual .print-empty{
+    padding:1mm 0;
+    font-size:4.8pt;
+}
+
+
+/* Rodapé também um pouco menor */
+.annual .print-footer{
+    height:5mm;
+    font-size:5.5pt;
 }
 
 
