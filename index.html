@@ -306,15 +306,106 @@ body{
 
 
     /* FILTROS RÁPIDOS + BUSCA */
+
+    .timeline-filter-shell{
+        margin:0 0 14px;
+    }
+
+    .filter-toggle{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        min-height:38px;
+        padding:8px 13px;
+        border:1px solid #d7e0db;
+        border-radius:999px;
+        background:#fff;
+        color:#314139;
+        font-size:12px;
+        font-weight:bold;
+        cursor:pointer;
+        box-shadow:0 2px 8px #0000000a;
+        transition:
+            border-color .18s ease,
+            background .18s ease,
+            transform .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .filter-toggle:hover{
+        border-color:var(--verde);
+        background:#f5fbf7;
+        color:var(--verde-escuro);
+        transform:translateY(-1px);
+        box-shadow:0 4px 12px #00000010;
+    }
+
+    .filter-toggle-main{
+        white-space:nowrap;
+    }
+
+    .filter-chevron{
+        display:inline-block;
+        font-size:15px;
+        line-height:1;
+        transition:transform .22s ease;
+    }
+
+    .timeline-filter-shell.open .filter-chevron{
+        transform:rotate(180deg);
+    }
+
+    .filter-active-badge{
+        display:none;
+        min-width:20px;
+        height:20px;
+        padding:0 6px;
+        align-items:center;
+        justify-content:center;
+        border-radius:999px;
+        background:#e9f8ef;
+        color:var(--verde-escuro);
+        font-size:10px;
+        font-weight:bold;
+    }
+
+    .filter-active-badge.visible{
+        display:inline-flex;
+    }
+
+
     .timeline-filters{
         display:flex;
         flex-direction:column;
         gap:12px;
-        margin:0 0 18px;
-        padding:14px;
-        border:1px solid #e6ece8;
+
+        max-height:0;
+        margin:0;
+        padding:0 14px;
+
+        border:1px solid transparent;
         border-radius:14px;
         background:#f9fbfa;
+
+        opacity:0;
+        overflow:hidden;
+        pointer-events:none;
+
+        transition:
+            max-height .28s ease,
+            opacity .2s ease,
+            margin .28s ease,
+            padding .28s ease,
+            border-color .2s ease;
+    }
+
+    .timeline-filter-shell.open .timeline-filters{
+        max-height:430px;
+        margin-top:9px;
+        padding:14px;
+        border-color:#e6ece8;
+        opacity:1;
+        pointer-events:auto;
     }
 
     .filter-row{
@@ -416,9 +507,25 @@ body{
     }
 
     @media(max-width:700px){
+        .timeline-filter-shell{
+            margin-bottom:10px;
+        }
+
+        .filter-toggle{
+            min-height:36px;
+            padding:7px 11px;
+            font-size:11px;
+        }
+
         .timeline-filters{
             gap:10px;
-            margin-bottom:12px;
+            padding-left:10px;
+            padding-right:10px;
+        }
+
+        .timeline-filter-shell.open .timeline-filters{
+            max-height:650px;
+            margin-top:7px;
             padding:10px;
         }
 
@@ -1580,7 +1687,20 @@ body{
     </div>
 </div>
 
-        <div class="timeline-filters" id="timelineFilters">
+        <div class="timeline-filter-shell" id="timelineFilterShell">
+
+            <button
+                type="button"
+                class="filter-toggle"
+                id="filterToggle"
+                aria-expanded="false"
+                aria-controls="timelineFilters">
+                <span class="filter-toggle-main">⚙️ Filtros</span>
+                <span class="filter-active-badge" id="filterActiveBadge"></span>
+                <span class="filter-chevron" aria-hidden="true">⌄</span>
+            </button>
+
+            <div class="timeline-filters" id="timelineFilters">
 
             <div class="filter-row">
                 <span class="filter-label">Segmento</span>
@@ -1624,6 +1744,8 @@ body{
                 </div>
 
                 <span class="filter-summary" id="filterSummary"></span>
+            </div>
+
             </div>
 
         </div>
@@ -1995,6 +2117,31 @@ function atualizarEstadoVisualFiltros(){
             termoBusca.trim() !== ""
         );
     }
+
+    const badge =
+        document.getElementById("filterActiveBadge");
+
+    if(badge){
+        let totalAtivos = 0;
+
+        if(filtroSegmento !== "Todos"){
+            totalAtivos++;
+        }
+
+        if(filtroCategoria !== "Todos"){
+            totalAtivos++;
+        }
+
+        if(termoBusca.trim() !== ""){
+            totalAtivos++;
+        }
+
+        badge.textContent = totalAtivos;
+        badge.classList.toggle(
+            "visible",
+            totalAtivos > 0
+        );
+    }
 }
 
 function aplicarFiltrosERenderizar(){
@@ -2013,6 +2160,26 @@ function aplicarFiltrosERenderizar(){
 }
 
 function configurarFiltrosTimeline(){
+
+    const filterShell =
+        document.getElementById("timelineFilterShell");
+
+    const filterToggle =
+        document.getElementById("filterToggle");
+
+    if(filterShell && filterToggle){
+
+        filterToggle.addEventListener("click", function(){
+
+            const aberto =
+                filterShell.classList.toggle("open");
+
+            filterToggle.setAttribute(
+                "aria-expanded",
+                aberto ? "true" : "false"
+            );
+        });
+    }
 
     document
         .querySelectorAll("[data-segment-filter]")
