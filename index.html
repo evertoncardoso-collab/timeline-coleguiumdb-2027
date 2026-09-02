@@ -855,6 +855,228 @@ body{
     }
 }
 
+    /* ==========================================================
+   TIMELINE VERTICAL - SOMENTE MOBILE
+========================================================== */
+@media (max-width:700px){
+
+    .timeline-nav{
+        display:none !important;
+    }
+
+    .timeline-area{
+        overflow:visible;
+    }
+
+    .timeline-scroll{
+        overflow:visible !important;
+        padding:14px 0 10px !important;
+    }
+
+    .timeline{
+        min-width:0 !important;
+        width:100% !important;
+        padding:0 !important;
+    }
+
+    .timeline.timeline-mobile{
+        position:relative;
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+        width:100%;
+        max-width:100%;
+        padding:6px 0 10px !important;
+    }
+
+    .timeline.timeline-mobile::before{
+        content:"";
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:50%;
+        transform:translateX(-50%);
+        width:4px;
+        border-radius:999px;
+        background:#dfe6e3;
+    }
+
+    .mobile-item{
+        position:relative;
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);
+        align-items:center;
+        gap:8px;
+        min-height:120px;
+    }
+
+    .mobile-item.left .mobile-card-wrap{
+        grid-column:1;
+    }
+
+    .mobile-item.right .mobile-card-wrap{
+        grid-column:3;
+    }
+
+    .mobile-item.left .mobile-empty{
+        grid-column:3;
+    }
+
+    .mobile-item.right .mobile-empty{
+        grid-column:1;
+    }
+
+    .mobile-empty{
+        min-height:1px;
+    }
+
+    .mobile-center{
+        grid-column:2;
+        position:relative;
+        z-index:2;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .mobile-node{
+        width:22px;
+        height:22px;
+        border-radius:50%;
+        background:#fff;
+        border:5px solid var(--event-color, #35b86b);
+        box-shadow:0 2px 8px rgba(0,0,0,.10);
+    }
+
+    .mobile-card-wrap{
+        position:relative;
+        display:flex;
+        align-items:center;
+    }
+
+    .mobile-item.left .mobile-card-wrap{
+        justify-content:flex-end;
+    }
+
+    .mobile-item.right .mobile-card-wrap{
+        justify-content:flex-start;
+    }
+
+    .mobile-connector{
+        position:absolute;
+        top:50%;
+        width:16px;
+        height:3px;
+        border-radius:999px;
+        background:var(--event-color, #35b86b);
+        opacity:.55;
+        transform:translateY(-50%);
+    }
+
+    .mobile-item.left .mobile-connector{
+        right:-16px;
+    }
+
+    .mobile-item.right .mobile-connector{
+        left:-16px;
+    }
+
+    .mobile-card{
+        width:100%;
+        max-width:100%;
+        background:#fff;
+        border-radius:16px;
+        padding:12px 12px 11px;
+        box-shadow:0 5px 18px rgba(0,0,0,.08);
+        border-top:4px solid var(--event-color, #35b86b);
+        min-height:112px;
+    }
+
+    .mobile-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+        padding:4px 8px;
+        margin-bottom:8px;
+        border-radius:999px;
+        background:color-mix(in srgb, var(--event-color, #35b86b) 16%, white);
+        color:var(--event-color, #35b86b);
+        font-size:9px;
+        font-weight:700;
+        text-transform:uppercase;
+        letter-spacing:.2px;
+    }
+
+    .mobile-date{
+        font-size:11px;
+        font-weight:700;
+        color:var(--event-color, #35b86b);
+        line-height:1.3;
+        margin-bottom:6px;
+    }
+
+    .mobile-date-range{
+        font-size:12px;
+        font-weight:700;
+        color:var(--event-color, #35b86b);
+        line-height:1.35;
+        margin-bottom:4px;
+    }
+
+    .mobile-weekdays{
+        font-size:10px;
+        color:#7b857f;
+        line-height:1.25;
+        margin-bottom:8px;
+    }
+
+    .mobile-title{
+        font-size:14px;
+        font-weight:800;
+        line-height:1.22;
+        color:#24312a;
+        margin-bottom:6px;
+        word-break:break-word;
+    }
+
+    .mobile-meta{
+        font-size:11px;
+        color:#56635c;
+        line-height:1.35;
+        margin-bottom:5px;
+    }
+
+    .mobile-desc{
+        font-size:11px;
+        color:#6d7772;
+        line-height:1.35;
+    }
+
+    .mobile-card .event-actions{
+        margin-top:10px;
+        gap:5px;
+    }
+
+    .mobile-card .small-btn{
+        padding:5px 7px;
+        font-size:9px;
+    }
+
+    .mobile-item.mobile-focus .mobile-card{
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--event-color, #35b86b) 22%, white),
+                   0 8px 24px rgba(0,0,0,.10);
+        transform:translateY(-1px);
+    }
+
+    .mobile-item.mobile-focus .mobile-node{
+        box-shadow:0 0 0 6px color-mix(in srgb, var(--event-color, #35b86b) 18%, white);
+    }
+
+    .timeline-box{
+        padding-bottom:18px;
+    }
+}
+
     
 </style>
 </head>
@@ -1363,6 +1585,30 @@ function focarEventoAtualOuProximo(){
         alvo = events[events.length - 1];
     }
 
+    if(isMobileTimeline()){
+
+    const itens = [...document.querySelectorAll(".mobile-item")];
+
+    const itemAlvo = itens.find(item =>
+        item.dataset.date === alvo.date
+    );
+
+    if(!itemAlvo) return;
+
+    itemAlvo.classList.add("mobile-focus");
+
+    setTimeout(() => {
+        itemAlvo.classList.remove("mobile-focus");
+    }, 2500);
+
+    itemAlvo.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    return;
+}
+
     const grupos =
         [...document.querySelectorAll(".date-group")];
 
@@ -1401,6 +1647,112 @@ function focarEventoAtualOuProximo(){
     );
 }
 
+/* ==========================================================
+   DETECÇÃO DE MOBILE + RENDERIZAÇÃO VERTICAL
+========================================================== */
+
+function isMobileTimeline(){
+    return window.innerWidth <= 700;
+}
+
+function renderMobileDateBlock(event){
+
+    if(event.endDate){
+        const totalDias = countPeriodDays(event.date, event.endDate);
+
+        return `
+            <div class="mobile-badge">
+                📅 PERÍODO • ${totalDias} ${totalDias === 1 ? "DIA" : "DIAS"}
+            </div>
+            <div class="mobile-date-range">
+                ${formatDate(event.date)} → ${formatDate(event.endDate)}
+            </div>
+            <div class="mobile-weekdays">
+                ${formatWeekday(event.date)} → ${formatWeekday(event.endDate)}
+            </div>
+        `;
+    }
+
+    return `
+        <div class="mobile-date">
+            ${formatDate(event.date)} • ${formatWeekday(event.date)}
+        </div>
+    `;
+}
+
+function renderMobileEventCard(event, index){
+
+    const lado = index % 2 === 0 ? "left" : "right";
+    const segmentos = (event.segments || []).join(", ");
+    const corEvento = event.color || "#35b86b";
+
+    return `
+        <div
+            class="mobile-item ${lado}"
+            data-date="${event.date}"
+            style="--event-color:${corEvento}"
+        >
+            <div class="mobile-card-wrap">
+                <span class="mobile-connector"></span>
+
+                <div class="mobile-card">
+                    ${renderMobileDateBlock(event)}
+
+                    <div class="mobile-title">
+                        ${escapeHtml(event.title)}
+                    </div>
+
+                    <div class="mobile-meta">
+                        ${escapeHtml(event.category || "Evento")}
+                        ${segmentos ? " • " + escapeHtml(segmentos) : ""}
+                    </div>
+
+                    ${event.description ? `
+                        <div class="mobile-desc">
+                            ${escapeHtml(event.description)}
+                        </div>
+                    ` : ""}
+
+                    ${isAdmin ? `
+                        <div class="event-actions">
+                            <button
+                                class="small-btn edit-btn"
+                                onclick="editEvent(${index})">
+                                ✏️ Editar
+                            </button>
+
+                            <button
+                                class="small-btn delete-btn"
+                                onclick="removeEvent(${index})">
+                                🗑 Excluir
+                            </button>
+                        </div>
+                    ` : ""}
+                </div>
+            </div>
+
+            <div class="mobile-center">
+                <span class="mobile-node"></span>
+            </div>
+
+            <div class="mobile-empty"></div>
+        </div>
+    `;
+}
+
+function renderTimelineMobile(){
+
+    const timeline = document.getElementById("timeline");
+
+    timeline.className = "timeline timeline-mobile";
+
+    timeline.innerHTML = events
+        .map((event, index) => renderMobileEventCard(event, index))
+        .join("");
+}
+
+
+    
 function render(){
     const timeline = document.getElementById("timeline");
     const contador = document.getElementById("contador");
@@ -1408,6 +1760,11 @@ function render(){
     events.sort((a,b) => a.date.localeCompare(b.date));
 
     contador.textContent = `${events.length} ${events.length === 1 ? "evento" : "eventos"}`;
+
+    if(isMobileTimeline()){
+    renderTimelineMobile();
+    return;
+}
 
     if(events.length === 0){
         timeline.innerHTML = `<div class="empty">Nenhum evento cadastrado ainda.<br>Use o formulário abaixo para começar.</div>`;
@@ -1858,6 +2215,19 @@ window.addEventListener(
 
 setTimeout(atualizarBotoesTimeline, 500);
 
+
+    let resizeRenderTimer = null;
+
+window.addEventListener("resize", function(){
+    clearTimeout(resizeRenderTimer);
+
+    resizeRenderTimer = setTimeout(() => {
+        render();
+        if(typeof atualizarBotoesTimeline === "function"){
+            atualizarBotoesTimeline();
+        }
+    }, 180);
+});
     
 </script>
 
