@@ -2837,8 +2837,8 @@ function buildMonthMatrix(year, monthIndex, forceSixWeeks = true){
     const primeiroDia = new Date(year, monthIndex, 1, 12);
     const diasNoMes = new Date(year, monthIndex + 1, 0).getDate();
 
-    // segunda = 0 | domingo = 6
-    const indicePrimeiroDia = (primeiroDia.getDay() + 6) % 7;
+    // domingo = 0 | sábado = 6
+    const indicePrimeiroDia = primeiroDia.getDay();
 
     const cells = [];
 
@@ -3012,7 +3012,7 @@ const weeks = buildMonthMatrix(
                 ? " crowded"
                 : "";
 
-    const weekdays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+    const weekdays = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 
     const legendHtml = monthEvents.length
         ? monthEvents.map(event => renderPrintLegendItem(event, mode)).join("")
