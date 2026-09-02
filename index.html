@@ -2373,24 +2373,36 @@ window.addEventListener("resize", function(){
    BOTÃO MOBILE → LOGIN
 ========================================================== */
 
-const mobileLoginBtn =
-    document.getElementById("mobileLoginBtn");
+document.addEventListener("DOMContentLoaded", function(){
 
-mobileLoginBtn.addEventListener("click", function(){
+    const mobileLoginBtn =
+        document.getElementById("mobileLoginBtn");
 
-    const loginBox =
-        document.getElementById("loginBox");
+    if(!mobileLoginBtn) return;
 
-    if(!loginBox) return;
+    mobileLoginBtn.addEventListener("click", function(){
 
-    loginBox.scrollIntoView({
-        behavior:"smooth",
-        block:"center"
+        const loginBox =
+            document.getElementById("loginBox");
+
+        if(!loginBox) return;
+
+        loginBox.scrollIntoView({
+            behavior:"smooth",
+            block:"center"
+        });
+
+        setTimeout(() => {
+            const campoUsuario =
+                document.getElementById("adminUser");
+
+            if(campoUsuario){
+                campoUsuario.focus();
+            }
+        }, 700);
+
     });
 
-    setTimeout(() => {
-        document.getElementById("adminUser")?.focus();
-    }, 600);
 });
     
 </script>
