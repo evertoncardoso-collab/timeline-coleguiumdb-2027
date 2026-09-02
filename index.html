@@ -2723,8 +2723,11 @@ document
 });
 
 
-function getPrintMonthName(month){
+/* ==========================================================
+   HELPERS - CALENDÁRIO IMPRESSO EM GRADE
+========================================================== */
 
+function getPrintMonthName(month){
     return [
         "Janeiro",
         "Fevereiro",
@@ -2739,90 +2742,237 @@ function getPrintMonthName(month){
         "Novembro",
         "Dezembro"
     ][month];
-
 }
 
+function pad2(n){
+    return String(n).padStart(2, "0");
+}
 
 function getPrintDateParts(dateString){
-
-    const [ano, mes, dia] =
-        dateString.split("-");
-
+    const [ano, mes, dia] = dateString.split("-");
     return {
-        ano:Number(ano),
-        mes:Number(mes),
-        dia:Number(dia)
+        ano: Number(ano),
+        mes: Number(mes),
+        dia: Number(dia)
     };
-
 }
 
+function sanitizePrintColor(color){
+    return /^#[0-9a-f]{6}$/i.test(color || "")
+        ? color
+        : "#35b86b";
+}
+
+function hexToRgbCsv(hex){
+    const limpa = sanitizePrintColor(hex).replace("#", "");
+    const r = parseInt(limpa.slice(0, 2), 16);
+    const g = parseInt(limpa.slice(2, 4), 16);
+    const b = parseInt(limpa.slice(4, 6), 16);
+    return `${r}, ${g}, ${b}`;
+}
 
 function formatPrintDate(event){
 
-    const inicio =
-        getPrintDateParts(event.date);
+    const inicio = getPrintDateParts(event.date);
 
     if(!event.endDate){
-
-        return String(inicio.dia).padStart(2,"0");
-
+        return String(inicio.dia).padStart(2, "0") + "/" + String(inicio.mes).padStart(2, "0");
     }
 
-    const fim =
-        getPrintDateParts(event.endDate);
-
-    if(
-        inicio.ano === fim.ano &&
-        inicio.mes === fim.mes
-    ){
-
-        return (
-            String(inicio.dia).padStart(2,"0") +
-            "–" +
-            String(fim.dia).padStart(2,"0")
-        );
-
-    }
+    const fim = getPrintDateParts(event.endDate);
 
     return (
-        String(inicio.dia).padStart(2,"0") +
+        String(inicio.dia).padStart(2, "0") +
         "/" +
-        String(inicio.mes).padStart(2,"0") +
+        String(inicio.mes).padStart(2, "0") +
         "–" +
-        String(fim.dia).padStart(2,"0") +
+        String(fim.dia).padStart(2, "0") +
         "/" +
-        String(fim.mes).padStart(2,"0")
+        String(fim.mes).padStart(2, "0")
+    );
+}
+
+function monthStartISO(year, monthIndex){
+    return `${year}-${pad2(monthIndex + 1)}-01`;
+}
+
+function monthEndISO(year, monthIndex){
+    const ultimoDia = new Date(year, monthIndex + 1, 0).getDate();
+    return `${year}-${pad2(monthIndex + 1)}-${pad2(ultimoDia)}`;
+}
+
+function eventOccursOnDate(event, isoDate){
+    const fim = event.endDate || event.date;
+    return event.date <= isoDate && fim >= isoDate;
+}
+
+function eventTouchesMonth(event, year, monthIndex){
+    const inicioMes = monthStartISO(year, monthIndex);
+    const fimMes = monthEndISO(year, monthIndex);
+    const fimEvento = event.endDate || event.date;
+
+    return event.date <= fimMes && fimEvento >= inicioMes;
+}
+
+function buildMonthMatrix(year, monthIndex){
+
+    const primeiroDia = new Date(year, monthIndex, 1, 12);
+    const diasNoMes = new Date(year, monthIndex + 1, 0).getDate();
+
+    // segunda = 0 | domingo = 6
+    const indicePrimeiroDia = (primeiroDia.getDay() + 6) % 7;
+
+    const cells = [];
+
+    for(let i = 0; i < indicePrimeiroDia; i++){
+        cells.push({
+            day: "",
+            date: "",
+            inCurrentMonth: false
+        });
+    }
+
+    for(let dia = 1; dia <= diasNoMes; dia++){
+        cells.push({
+            day: dia,
+            date: `${year}-${pad2(monthIndex + 1)}-${pad2(dia)}`,
+            inCurrentMonth: true
+        });
+    }
+
+    while(cells.length % 7 !== 0){
+        cells.push({
+            day: "",
+            date: "",
+            inCurrentMonth: false
+        });
+    }
+
+    while(cells.length < 42){
+        cells.push({
+            day: "",
+            date: "",
+            inCurrentMonth: false
+        });
+    }
+
+    const weeks = [];
+
+    for(let i = 0; i < cells.length; i += 7){
+        weeks.push(cells.slice(i, i + 7));
+    }
+
+    return weeks;
+}
+
+function getPrintEventsForMonth(monthIndex){
+    return events
+        .filter(event => eventTouchesMonth(event, PRINT_YEAR, monthIndex))
+        .sort((a, b) => {
+            const dataA = a.date.localeCompare(b.date);
+            if(dataA !== 0) return dataA;
+            return (a.title || "").localeCompare(b.title || "");
+        });
+}
+
+function renderPrintDayCell(cell){
+
+    if(!cell.inCurrentMonth){
+        return `<div class="print-day other"></div>`;
+    }
+
+    const dayEvents = events.filter(event =>
+        eventOccursOnDate(event, cell.date)
     );
 
+    const hasEvents = dayEvents.length > 0;
+
+    const firstColor = hasEvents
+        ? sanitizePrintColor(dayEvents[0].color)
+        : "#dce5e0";
+
+    const rgb = hasEvents
+        ? hexToRgbCsv(firstColor)
+        : "220,229,224";
+
+    const dots = dayEvents
+        .slice(0, 3)
+        .map(event => `
+            <span
+                class="print-day-dot"
+                style="background:${sanitizePrintColor(event.color)}">
+            </span>
+        `)
+        .join("");
+
+    const extra = dayEvents.length > 3
+        ? `<span class="print-day-more">+${dayEvents.length - 3}</span>`
+        : "";
+
+    return `
+        <div
+            class="print-day ${hasEvents ? "has-events" : ""}"
+            style="--cell-color:${firstColor}; --cell-rgb:${rgb};"
+        >
+            <div class="print-day-num">
+                ${cell.day}
+            </div>
+
+            <div class="print-day-markers">
+                ${dots}
+                ${extra}
+            </div>
+        </div>
+    `;
 }
 
+function renderPrintLegendItem(event, mode){
 
-function eventosPrintDoMes(month){
+    const cor = sanitizePrintColor(event.color);
+    const segmentos = (event.segments || []).join(", ");
 
-    return events
-        .filter(event => {
+    return `
+        <div class="print-legend-item" style="--event-color:${cor}">
 
-            const data =
-                getPrintDateParts(event.date);
+            <span class="print-legend-marker"></span>
 
-            return (
-                data.ano === PRINT_YEAR &&
-                data.mes === month + 1
-            );
+            <div class="print-legend-content">
 
-        })
-        .sort(
-            (a,b) =>
-                a.date.localeCompare(b.date)
-        );
+                <div class="print-legend-line">
+                    <strong>${formatPrintDate(event)}</strong>
+                    ${escapeHtml(event.title)}
+                </div>
 
+                ${
+                    mode !== "annual"
+                        ? `
+                            <div class="print-legend-meta">
+                                ${escapeHtml(event.category || "Evento")}
+                                ${segmentos ? " • " + escapeHtml(segmentos) : ""}
+                            </div>
+                          `
+                        : ""
+                }
+
+                ${
+                    mode === "quarter" && event.description
+                        ? `
+                            <div class="print-legend-desc">
+                                ${escapeHtml(event.description)}
+                            </div>
+                          `
+                        : ""
+                }
+
+            </div>
+        </div>
+    `;
 }
-
 
 function renderPrintMonth(month, mode){
 
-    const monthEvents =
-        eventosPrintDoMes(month);
+    const weeks = buildMonthMatrix(PRINT_YEAR, month);
+    const monthEvents = getPrintEventsForMonth(month);
 
     const crowdedClass =
         monthEvents.length >= 9
@@ -2831,76 +2981,39 @@ function renderPrintMonth(month, mode){
                 ? " crowded"
                 : "";
 
-    const eventHtml =
-        monthEvents.length
-        ? monthEvents.map(event => {
+    const weekdays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-            const segmentos =
-                (event.segments || []).join(", ");
-
-            const cor =
-                /^#[0-9a-f]{6}$/i.test(event.color || "")
-                    ? event.color
-                    : "#35b86b";
-
-            return `
-                <div
-                    class="print-event"
-                    style="--event-color:${cor}">
-
-                    <div class="print-event-main">
-
-                        <span class="print-event-date">
-                            ${formatPrintDate(event)}
-                        </span>
-
-                        <span class="print-event-title">
-                            ${escapeHtml(event.title)}
-                        </span>
-
-                    </div>
-
-                    <div class="print-event-meta">
-                        ${escapeHtml(event.category || "")}
-                        ${segmentos
-                            ? " • " + escapeHtml(segmentos)
-                            : ""}
-                    </div>
-
-                    ${
-                        event.description
-                        ? `
-                            <div class="print-event-desc">
-                                ${escapeHtml(event.description)}
-                            </div>
-                          `
-                        : ""
-                    }
-
-                </div>
-            `;
-
-        }).join("")
-        : `
-            <div class="print-empty">
-                Nenhum evento
-            </div>
-        `;
+    const legendHtml = monthEvents.length
+        ? monthEvents.map(event => renderPrintLegendItem(event, mode)).join("")
+        : `<div class="print-empty">Nenhum evento neste mês</div>`;
 
     return `
         <section class="print-month${crowdedClass}">
 
             <div class="print-month-title">
-                ${getPrintMonthName(month)}
+                ${getPrintMonthName(month)} ${PRINT_YEAR}
             </div>
 
-            <div class="print-month-events">
-                ${eventHtml}
+            <div class="print-month-calendar">
+
+                <div class="print-weekdays">
+                    ${weekdays.map(day => `
+                        <div class="print-weekday">${day}</div>
+                    `).join("")}
+                </div>
+
+                <div class="print-days">
+                    ${weeks.flat().map(cell => renderPrintDayCell(cell)).join("")}
+                </div>
+
+            </div>
+
+            <div class="print-month-legend">
+                ${legendHtml}
             </div>
 
         </section>
     `;
-
 }
 
 
@@ -3229,34 +3342,21 @@ body{
 /* Grade de meses */
 
 .print-grid{
-
     flex:1;
     min-height:0;
 
     display:grid;
-
-    grid-template-columns:
-        repeat(
-            var(--print-columns),
-            minmax(0,1fr)
-        );
-
-    grid-template-rows:
-        repeat(
-            var(--print-rows),
-            minmax(0,1fr)
-        );
+    grid-template-columns:repeat(var(--print-columns), minmax(0,1fr));
+    grid-template-rows:repeat(var(--print-rows), minmax(0,1fr));
 
     gap:3mm;
-
     padding:4mm 0 3mm;
 }
 
 
-/* Mês */
+/* Bloco de mês */
 
 .print-month{
-
     min-width:0;
     min-height:0;
 
@@ -3264,218 +3364,293 @@ body{
     flex-direction:column;
 
     border:.35mm solid #dce5e0;
-
     border-radius:2.5mm;
-
     overflow:hidden;
-
     background:#fff;
 }
 
 .print-month-title{
-
     flex:none;
-
-    padding:2mm 2.5mm;
-
-    background:#edf5ff;
-
-    border-bottom:.3mm solid #d8e4ef;
-
-    color:#145ba0;
-
+    padding:1.8mm 2.5mm;
+    background:linear-gradient(180deg, #2e90db, #1569ba);
+    color:#fff;
     font-size:10pt;
+    font-weight:bold;
+    text-align:center;
+}
+
+.print-month-calendar{
+    flex:none;
+    padding:1.6mm 1.8mm 1.2mm;
+}
+
+
+/* Cabeçalho dos dias da semana */
+
+.print-weekdays{
+    display:grid;
+    grid-template-columns:repeat(7, 1fr);
+    gap:.5mm;
+    margin-bottom:.8mm;
+}
+
+.print-weekday{
+    text-align:center;
+    font-size:6.8pt;
+    font-weight:bold;
+    color:#2b2f32;
+}
+
+
+/* Grade dos dias */
+
+.print-days{
+    display:grid;
+    grid-template-columns:repeat(7, 1fr);
+    grid-template-rows:repeat(6, 1fr);
+    gap:.45mm;
+}
+
+.print-day{
+    min-height:7.1mm;
+    border:.25mm solid #e6ece8;
+    background:#fff;
+    padding:.6mm .7mm;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.print-day.other{
+    background:#f5f6f6;
+    border-color:#edf1ef;
+}
+
+.print-day.has-events{
+    background:rgba(var(--cell-rgb), .11);
+    box-shadow:inset 0 -1.2mm 0 var(--cell-color);
+}
+
+.print-day.has-events .print-day-num{
+    color:var(--cell-color);
     font-weight:bold;
 }
 
-.print-month-events{
+.print-day-num{
+    font-size:6.7pt;
+    line-height:1;
+    color:#3c4440;
+}
 
+.print-day-markers{
+    display:flex;
+    align-items:center;
+    gap:.5mm;
+    min-height:2.5mm;
+}
+
+.print-day-dot{
+    width:1.7mm;
+    height:1.7mm;
+    border-radius:50%;
+    display:inline-block;
+}
+
+.print-day-more{
+    font-size:5.2pt;
+    color:#5d6862;
+    font-weight:bold;
+}
+
+
+/* Legenda do mês */
+
+.print-month-legend{
+    flex:1;
     min-height:0;
 
     display:flex;
     flex-direction:column;
+    gap:.9mm;
 
-    gap:1.2mm;
-
-    padding:1.8mm 2mm;
+    padding:1.2mm 1.8mm 1.8mm;
 }
 
-
-/* Evento */
-
-.print-event{
-
-    padding-left:1.8mm;
-
-    border-left:1.2mm solid
-        var(--event-color);
-
-    line-height:1.15;
-}
-
-.print-event-main{
-
+.print-legend-item{
     display:flex;
-    gap:1.5mm;
-
     align-items:flex-start;
+    gap:1.3mm;
+    line-height:1.16;
 }
 
-.print-event-date{
-
-    min-width:8mm;
-
-    color:var(--event-color);
-
-    font-size:7.2pt;
-    font-weight:bold;
+.print-legend-marker{
+    width:2.3mm;
+    height:2.3mm;
+    border-radius:50%;
+    background:var(--event-color);
+    flex:none;
+    margin-top:.4mm;
 }
 
-.print-event-title{
+.print-legend-content{
+    min-width:0;
+    flex:1;
+}
 
-    font-size:7.5pt;
-    font-weight:bold;
-
+.print-legend-line{
+    font-size:6.3pt;
+    color:#263029;
     overflow-wrap:anywhere;
 }
 
-.print-event-meta{
-
-    margin-top:.5mm;
-
-    color:#5f6b65;
-
-    font-size:6.4pt;
+.print-legend-line strong{
+    color:#111;
+    margin-right:.7mm;
 }
 
-.print-event-desc{
+.print-legend-meta{
+    margin-top:.35mm;
+    font-size:5.7pt;
+    color:#607068;
+}
 
-    margin-top:.5mm;
-
-    color:#738079;
-
-    font-size:6.2pt;
-
+.print-legend-desc{
+    margin-top:.35mm;
+    font-size:5.5pt;
+    color:#76827b;
     line-height:1.18;
 }
 
 .print-empty{
-
-    padding:4mm;
-
+    padding:2.4mm 0;
     text-align:center;
-
-    color:#a0aaa5;
-
-    font-size:7pt;
+    color:#9aa59f;
+    font-size:6pt;
 }
 
 
-/* Calendário anual: máxima compactação */
-
-.annual .print-event-meta,
-.annual .print-event-desc{
-    display:none;
-}
+/* Completo: 12 meses em 1 página */
 
 .annual .print-month-title{
-    padding:1.4mm 2mm;
-    font-size:8.6pt;
+    font-size:8.8pt;
+    padding:1.2mm 1.8mm;
 }
 
-.annual .print-month-events{
-    gap:.8mm;
-    padding:1.2mm 1.4mm;
+.annual .print-month-calendar{
+    padding:1.1mm 1.2mm .8mm;
 }
 
-.annual .print-event-date{
-    min-width:6.5mm;
-    font-size:6.1pt;
+.annual .print-weekday{
+    font-size:5.6pt;
 }
 
-.annual .print-event-title{
-    font-size:6.4pt;
+.annual .print-day{
+    min-height:5.3mm;
+    padding:.45mm;
 }
 
+.annual .print-day-num{
+    font-size:5.5pt;
+}
 
-/* Semestral */
+.annual .print-day-dot{
+    width:1.2mm;
+    height:1.2mm;
+}
 
-.semester .print-event-desc{
+.annual .print-month-legend{
+    gap:.55mm;
+    padding:.8mm 1.2mm 1.1mm;
+}
+
+.annual .print-legend-line{
+    font-size:5.3pt;
+}
+
+.annual .print-legend-meta,
+.annual .print-legend-desc{
     display:none;
 }
 
-.semester .print-event-title{
-    font-size:7.7pt;
+
+/* Semestral: 6 meses por página */
+
+.semester .print-day{
+    min-height:6.7mm;
+}
+
+.semester .print-legend-line{
+    font-size:6.2pt;
+}
+
+.semester .print-legend-desc{
+    display:none;
 }
 
 
-/* Trimestral */
+/* Trimestral: 3 meses por página */
 
 .quarter .print-month-title{
     font-size:13pt;
-    padding:3mm;
+    padding:2.3mm 3mm;
 }
 
-.quarter .print-month-events{
-    gap:2.3mm;
-    padding:3mm;
+.quarter .print-month-calendar{
+    padding:2.2mm 2.6mm 1.7mm;
 }
 
-.quarter .print-event{
-    padding-left:2.5mm;
+.quarter .print-weekday{
+    font-size:8pt;
 }
 
-.quarter .print-event-date{
-    min-width:11mm;
+.quarter .print-day{
+    min-height:11mm;
+    padding:1mm 1.1mm;
+}
+
+.quarter .print-day-num{
     font-size:9pt;
 }
 
-.quarter .print-event-title{
-    font-size:9.5pt;
+.quarter .print-day-dot{
+    width:2.2mm;
+    height:2.2mm;
 }
 
-.quarter .print-event-meta{
-    font-size:7.5pt;
+.quarter .print-legend-line{
+    font-size:8pt;
 }
 
-.quarter .print-event-desc{
-    font-size:7.2pt;
+.quarter .print-legend-meta{
+    font-size:6.8pt;
+}
+
+.quarter .print-legend-desc{
+    font-size:6.6pt;
 }
 
 
-/* Muitos eventos no mesmo mês */
+/* Meses muito cheios */
 
-.print-month.crowded
-.print-month-events{
-    gap:.6mm;
-}
-
-.print-month.crowded
-.print-event-title{
-    font-size:6.5pt;
-}
-
-.print-month.crowded
-.print-event-meta{
+.print-month.crowded .print-legend-line{
     font-size:5.8pt;
 }
 
-.print-month.very-crowded
-.print-month-events{
-    gap:.35mm;
-    padding-top:1mm;
-    padding-bottom:1mm;
+.print-month.crowded .print-legend-meta{
+    font-size:5.3pt;
 }
 
-.print-month.very-crowded
-.print-event-title{
-    font-size:5.8pt;
+.print-month.very-crowded .print-month-legend{
+    gap:.4mm;
 }
 
-.print-month.very-crowded
-.print-event-meta,
-.print-month.very-crowded
-.print-event-desc{
+.print-month.very-crowded .print-legend-line{
+    font-size:5.2pt;
+}
+
+.print-month.very-crowded .print-legend-meta,
+.print-month.very-crowded .print-legend-desc{
     display:none;
 }
 
