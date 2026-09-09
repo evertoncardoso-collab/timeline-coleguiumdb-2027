@@ -1657,6 +1657,582 @@ body{
     }
 }
     
+
+/* ==========================================================
+   REFINAMENTO VISUAL INSTITUCIONAL
+   Azul Coleguium como cor principal + verde como apoio/status
+========================================================== */
+
+:root{
+    --ui-blue:#135fa8;
+    --ui-blue-dark:#0b3f78;
+    --ui-blue-soft:#eaf4ff;
+    --ui-blue-line:#c8dff4;
+
+    --ui-green:#2ca66f;
+    --ui-green-soft:#eaf8f1;
+
+    --ui-bg:#f4f7fb;
+    --ui-card:#ffffff;
+    --ui-border:#dfe8f1;
+    --ui-text:#203040;
+    --ui-muted:#6c7a86;
+}
+
+html,
+body{
+    background:var(--ui-bg);
+}
+
+body{
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:var(--ui-text);
+}
+
+
+/* Banner mais limpo */
+.banner-header{
+    border-bottom:1px solid #dce8f4;
+    box-shadow:0 2px 10px rgba(28,72,108,.06);
+}
+
+
+/* Caixa principal */
+.timeline-box{
+    border:1px solid var(--ui-border);
+    box-shadow:0 8px 28px rgba(39,74,105,.07);
+}
+
+
+/* Cabeçalho / barra de ações */
+.timeline-title{
+    align-items:center;
+    gap:18px;
+    margin-bottom:16px;
+}
+
+.timeline-heading{
+    min-width:0;
+}
+
+.timeline-kicker{
+    display:block;
+    margin-bottom:4px;
+    color:var(--ui-blue);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:1.1px;
+}
+
+.timeline-title h2{
+    color:#17324d;
+    font-size:23px;
+    line-height:1.15;
+    letter-spacing:-.25px;
+}
+
+.timeline-title-actions{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.contador{
+    background:var(--ui-green-soft);
+    color:#16734a;
+    border:1px solid #cfeede;
+    padding:7px 12px;
+}
+
+
+/* Botões da barra superior */
+.filter-toggle,
+.print-calendar-btn{
+    min-height:38px;
+    border-radius:10px;
+    padding:8px 12px;
+
+    border:1px solid #cfdceb;
+
+    background:#fff;
+    color:var(--ui-blue-dark);
+
+    box-shadow:none;
+
+    font-size:11px;
+    font-weight:750;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.filter-toggle:hover,
+.print-calendar-btn:hover{
+    background:var(--ui-blue-soft);
+    border-color:#9fc5e8;
+    color:var(--ui-blue-dark);
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(19,95,168,.08);
+}
+
+#filterToggle[aria-expanded="true"]{
+    background:var(--ui-blue-soft);
+    border-color:#9fc5e8;
+}
+
+#filterToggle[aria-expanded="true"] .filter-chevron{
+    transform:rotate(180deg);
+}
+
+.filter-active-badge{
+    background:var(--ui-blue);
+    color:#fff;
+}
+
+
+/* Filtros */
+.timeline-filter-shell{
+    margin-bottom:12px;
+}
+
+.timeline-filter-shell.open .timeline-filters{
+    border-color:#dbe7f2;
+    background:#f8fbfe;
+}
+
+.filter-chip.active{
+    border-color:#86b9e6;
+    background:var(--ui-blue-soft);
+    color:var(--ui-blue-dark);
+    box-shadow:0 0 0 2px rgba(19,95,168,.06);
+}
+
+.filter-chip:hover{
+    border-color:#86b9e6;
+    color:var(--ui-blue-dark);
+}
+
+.timeline-search:focus{
+    border-color:#79b1e0;
+    box-shadow:0 0 0 3px rgba(19,95,168,.10);
+}
+
+
+/* Linha do tempo horizontal */
+.timeline::before{
+    background:linear-gradient(
+        90deg,
+        #69aee5,
+        #bfdcf3
+    );
+    height:4px;
+}
+
+.timeline-nav{
+    background:rgba(19,95,168,.58);
+}
+
+.timeline-nav:hover{
+    background:rgba(19,95,168,.90);
+}
+
+
+/* Cards de evento */
+.event-card{
+    position:relative;
+
+    border:1px solid #e2eaf1;
+    border-left:4px solid var(--event-color, var(--ui-blue));
+
+    border-radius:13px;
+
+    box-shadow:
+        0 4px 14px rgba(31,67,98,.055);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+.event-card:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 8px 22px rgba(31,67,98,.10);
+}
+
+.period-card{
+    border-top:1px solid #e2eaf1;
+    border-left:4px solid var(--event-color, var(--ui-blue));
+}
+
+
+/* Cabeçalho interno dos cards */
+.event-card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+}
+
+.event-category-badge{
+    display:inline-flex;
+    align-items:center;
+
+    max-width:100%;
+
+    padding:4px 7px;
+
+    border-radius:999px;
+
+    background:
+        color-mix(
+            in srgb,
+            var(--event-color, var(--ui-blue)) 11%,
+            white
+        );
+
+    color:var(--event-color, var(--ui-blue));
+
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.35px;
+}
+
+.focus-badge{
+    display:inline-flex;
+    align-items:center;
+
+    padding:4px 7px;
+
+    border-radius:999px;
+
+    background:var(--ui-blue);
+    color:#fff;
+
+    font-size:8px;
+    font-weight:850;
+    letter-spacing:.45px;
+
+    box-shadow:0 2px 7px rgba(19,95,168,.16);
+}
+
+.event-focus{
+    box-shadow:
+        0 0 0 3px rgba(19,95,168,.09),
+        0 8px 24px rgba(31,67,98,.11);
+}
+
+.date-group-focus .event-dot{
+    box-shadow:
+        0 0 0 6px rgba(19,95,168,.12),
+        0 2px 7px #0002;
+}
+
+
+/* Texto dos cards */
+.event-date,
+.period-dates{
+    font-weight:750;
+}
+
+.event-title{
+    color:#203245;
+    font-size:15px;
+    line-height:1.25;
+}
+
+.event-segments{
+    margin-top:5px;
+    color:#526575;
+    font-size:10.5px;
+    font-weight:650;
+    line-height:1.35;
+}
+
+.event-description{
+    margin-top:6px;
+    color:#71808c;
+    font-size:11px;
+    line-height:1.42;
+}
+
+.period-badge{
+    background:
+        color-mix(
+            in srgb,
+            var(--event-color, var(--ui-blue)) 8%,
+            white
+        );
+}
+
+
+/* Botões administrativos dentro dos cards */
+.edit-btn{
+    background:#edf5ff;
+    color:#155b9e;
+}
+
+.delete-btn{
+    background:#fff0f0;
+    color:#b3261e;
+}
+
+
+/* Formulário / login */
+.login-box,
+.form-box{
+    border:1px solid var(--ui-border);
+    box-shadow:0 7px 22px rgba(39,74,105,.06);
+}
+
+.primary{
+    background:var(--ui-blue);
+}
+
+.primary:hover{
+    background:var(--ui-blue-dark);
+}
+
+.admin-toolbar{
+    background:var(--ui-blue-soft);
+    color:var(--ui-blue-dark);
+}
+
+
+/* Inputs */
+input:focus,
+textarea:focus,
+select:focus{
+    border-color:#76addc;
+    box-shadow:0 0 0 3px rgba(19,95,168,.10);
+}
+
+
+/* Mobile vertical */
+@media(max-width:700px){
+
+    .timeline-title{
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .timeline-heading{
+        flex:1;
+    }
+
+    .timeline-kicker{
+        font-size:8px;
+        letter-spacing:.8px;
+    }
+
+    .timeline-title h2{
+        font-size:17px;
+        line-height:1.15;
+    }
+
+    .timeline-title-actions{
+        gap:5px;
+        flex:none;
+    }
+
+    .contador{
+        font-size:9px;
+        padding:6px 8px;
+    }
+
+    .filter-toggle,
+    .print-calendar-btn{
+        width:36px;
+        height:36px;
+        min-height:36px;
+        padding:0;
+        border-radius:10px;
+
+        display:flex;
+        align-items:center;
+        justify-content:center;
+
+        font-size:0;
+        position:relative;
+    }
+
+    .filter-toggle-main{
+        font-size:0;
+    }
+
+    .filter-toggle-main::before{
+        content:"⚙️";
+        font-size:16px;
+    }
+
+    .filter-chevron{
+        display:none;
+    }
+
+    .filter-active-badge{
+        position:absolute;
+        top:-5px;
+        right:-5px;
+
+        min-width:17px;
+        height:17px;
+        padding:0 4px;
+
+        font-size:8px;
+
+        border:2px solid #fff;
+    }
+
+    .print-calendar-btn::before{
+        content:"🖨️";
+        font-size:16px;
+    }
+
+    .timeline.timeline-mobile{
+        gap:10px;
+    }
+
+    .timeline.timeline-mobile::before{
+        width:3px !important;
+        background:var(--ui-blue-line) !important;
+    }
+
+    .mobile-card{
+        border:1px solid #e2eaf1;
+        border-left:4px solid var(--event-color, var(--ui-blue));
+        border-top:1px solid #e2eaf1;
+
+        box-shadow:
+            0 4px 15px rgba(31,67,98,.07);
+    }
+
+    .mobile-node{
+        background:#fff;
+    }
+
+    .mobile-focus-event .mobile-card{
+        box-shadow:
+            0 0 0 3px rgba(19,95,168,.08),
+            0 8px 22px rgba(31,67,98,.11);
+    }
+
+    .mobile-focus-event .mobile-node{
+        box-shadow:
+            0 0 0 6px rgba(19,95,168,.10);
+    }
+
+    .mobile-title{
+        color:#203245;
+    }
+
+    .mobile-desc{
+        color:#71808c;
+    }
+}
+
+
+/* Rodapé institucional */
+.site-footer{
+    width:100%;
+    margin-top:30px;
+    padding:0;
+
+    border-top:1px solid #dbe6f0;
+
+    background:#eef5fb;
+
+    color:#66798a;
+    opacity:1;
+}
+
+.site-footer-inner{
+    width:min(1400px,94%);
+    margin:0 auto;
+
+    min-height:58px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+
+    padding:13px 4px;
+}
+
+.footer-credit{
+    font-size:11px;
+}
+
+.footer-admin-btn{
+    border:1px solid #c9d9e8;
+    border-radius:9px;
+
+    padding:7px 10px;
+
+    background:rgba(255,255,255,.68);
+    color:#4b657a;
+
+    font-size:10px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+}
+
+.footer-admin-btn:hover{
+    background:#fff;
+    color:var(--ui-blue-dark);
+    border-color:#9fc3e3;
+}
+
+
+/* Mobile: administração continua pelo botão flutuante */
+@media(max-width:700px){
+
+    .site-footer{
+        margin-top:20px;
+    }
+
+    .site-footer-inner{
+        min-height:50px;
+        justify-content:center;
+        padding:11px 8px;
+    }
+
+    .footer-credit{
+        font-size:10px;
+        text-align:center;
+    }
+
+    .footer-admin-btn{
+        display:none;
+    }
+
+    .mobile-login-btn{
+        background:rgba(19,95,168,.86);
+    }
+}
+
+
 </style>
 </head>
 <body>
@@ -1673,32 +2249,38 @@ body{
 
     <section class="timeline-box">
         <div class="timeline-title">
-    <h2>📅 Eventos de 2027</h2>
 
-    <div class="timeline-title-actions">
-        <span class="contador" id="contador">0 eventos</span>
+            <div class="timeline-heading">
+                <span class="timeline-kicker">CALENDÁRIO ESCOLAR</span>
+                <h2>Linha do Tempo de Eventos</h2>
+            </div>
 
-        <button
-            type="button"
-            class="print-calendar-btn"
-            id="printCalendarBtn">
-            🖨️ Imprimir calendário
-        </button>
-    </div>
-</div>
+            <div class="timeline-title-actions">
+
+                <span class="contador" id="contador">0 eventos</span>
+
+                <button
+                    type="button"
+                    class="filter-toggle"
+                    id="filterToggle"
+                    aria-expanded="false"
+                    aria-controls="timelineFilters">
+                    <span class="filter-toggle-main">⚙️ Filtros</span>
+                    <span class="filter-active-badge" id="filterActiveBadge"></span>
+                    <span class="filter-chevron" aria-hidden="true">⌄</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="print-calendar-btn"
+                    id="printCalendarBtn">
+                    🖨️ Imprimir
+                </button>
+
+            </div>
+        </div>
 
         <div class="timeline-filter-shell" id="timelineFilterShell">
-
-            <button
-                type="button"
-                class="filter-toggle"
-                id="filterToggle"
-                aria-expanded="false"
-                aria-controls="timelineFilters">
-                <span class="filter-toggle-main">⚙️ Filtros</span>
-                <span class="filter-active-badge" id="filterActiveBadge"></span>
-                <span class="filter-chevron" aria-hidden="true">⌄</span>
-            </button>
 
             <div class="timeline-filters" id="timelineFilters">
 
@@ -1838,7 +2420,7 @@ body{
 </div>
     
 
-   <section class="login-box" id="loginBox">
+   <section class="login-box" id="loginBox" style="display:none">
     <h3>🔐 Acesso administrativo</h3>
     <p>Entre para cadastrar e administrar os eventos.</p>
 
@@ -2243,6 +2825,8 @@ const ADMIN_PASS_HASH =
 let isAdmin =
     sessionStorage.getItem("timeline_admin") === "1";
 
+let loginBoxAberto = false;
+
 
 async function gerarHash(texto){
 
@@ -2268,16 +2852,60 @@ function atualizarModoAdmin(){
     const adminPanel =
         document.getElementById("adminPanel");
 
-    loginBox.style.display =
-        isAdmin ? "none" : "block";
+    if(loginBox){
+        loginBox.style.display =
+            (!isAdmin && loginBoxAberto) ? "block" : "none";
+    }
 
-    adminPanel.style.display =
-        isAdmin ? "block" : "none";
+    if(adminPanel){
+        adminPanel.style.display =
+            isAdmin ? "block" : "none";
+    }
 
     document.body.classList.toggle(
-    "admin-logado",
-    isAdmin
-);
+        "admin-logado",
+        isAdmin
+    );
+}
+
+
+function abrirLoginAdmin(){
+
+    if(isAdmin){
+
+        const adminPanel =
+            document.getElementById("adminPanel");
+
+        if(adminPanel){
+            adminPanel.scrollIntoView({
+                behavior:"smooth",
+                block:"start"
+            });
+        }
+
+        return;
+    }
+
+    loginBoxAberto = true;
+    atualizarModoAdmin();
+
+    setTimeout(() => {
+
+        const loginBox =
+            document.getElementById("loginBox");
+
+        if(loginBox){
+            loginBox.scrollIntoView({
+                behavior:"smooth",
+                block:"center"
+            });
+        }
+
+        setTimeout(() => {
+            document.getElementById("adminUser")?.focus();
+        }, 450);
+
+    }, 50);
 }
 
 
@@ -2307,6 +2935,7 @@ document
     ){
 
         isAdmin = true;
+        loginBoxAberto = false;
 
         sessionStorage.setItem(
             "timeline_admin",
@@ -2340,6 +2969,7 @@ document
 .addEventListener("click", function(){
 
     isAdmin = false;
+    loginBoxAberto = false;
 
     sessionStorage.removeItem(
         "timeline_admin"
@@ -2479,37 +3109,86 @@ function dataHojeISO(){
 }
 
 
-function focarEventoAtualOuProximo(){
+function getTimelineFocusEvent(lista = events){
 
-    if(!events.length) return;
+    if(!lista.length) return null;
 
     const hoje = dataHojeISO();
 
-    // 1. Prioridade: evento que começa exatamente hoje
-    let alvo = events.find(event =>
+    let alvo = lista.find(event =>
         event.date === hoje
     );
 
-    // 2. Depois: período que esteja acontecendo hoje
     if(!alvo){
-        alvo = events.find(event =>
+        alvo = lista.find(event =>
             event.endDate &&
             event.date < hoje &&
             event.endDate >= hoje
         );
     }
 
-    // 3. Depois: primeiro evento futuro
     if(!alvo){
-        alvo = events.find(event =>
+        alvo = lista.find(event =>
             event.date > hoje
         );
     }
 
-    // 4. Se todos já passaram, vai para o último
     if(!alvo){
-        alvo = events[events.length - 1];
+        alvo = lista[lista.length - 1];
     }
+
+    return alvo || null;
+}
+
+
+function getEventFocusLabel(event){
+
+    if(!event) return "";
+
+    const hoje = dataHojeISO();
+
+    if(event.date === hoje){
+        return "HOJE";
+    }
+
+    if(
+        event.endDate &&
+        event.date < hoje &&
+        event.endDate >= hoje
+    ){
+        return "EM ANDAMENTO";
+    }
+
+    if(event.date > hoje){
+        return "PRÓXIMO";
+    }
+
+    return "";
+}
+
+
+function isSameEvent(a, b){
+
+    if(!a || !b) return false;
+
+    if(a.id != null && b.id != null){
+        return String(a.id) === String(b.id);
+    }
+
+    return (
+        a.date === b.date &&
+        a.title === b.title
+    );
+}
+
+
+function focarEventoAtualOuProximo(){
+
+    if(!events.length) return;
+
+    const alvo = getTimelineFocusEvent(events);
+
+    if(!alvo) return;
 
     if(isMobileTimeline()){
 
@@ -2606,15 +3285,25 @@ function renderMobileDateBlock(event){
     `;
 }
 
-function renderMobileEventCard(event, originalIndex, visualIndex){
+function renderMobileEventCard(
+    event,
+    originalIndex,
+    visualIndex,
+    focusEvent
+){
 
     const lado = visualIndex % 2 === 0 ? "left" : "right";
     const segmentos = (event.segments || []).join(", ");
     const corEvento = event.color || "#35b86b";
 
+    const foco = isSameEvent(event, focusEvent);
+    const focoLabel = foco
+        ? getEventFocusLabel(event)
+        : "";
+
     return `
         <div
-            class="mobile-item ${lado}"
+            class="mobile-item ${lado} ${foco ? "mobile-focus-event" : ""}"
             data-date="${event.date}"
             style="--event-color:${corEvento}"
         >
@@ -2622,16 +3311,30 @@ function renderMobileEventCard(event, originalIndex, visualIndex){
                 <span class="mobile-connector"></span>
 
                 <div class="mobile-card">
+
+                    <div class="event-card-head">
+                        <span class="event-category-badge">
+                            ${escapeHtml(event.category || "Evento")}
+                        </span>
+
+                        ${focoLabel ? `
+                            <span class="focus-badge">
+                                ${escapeHtml(focoLabel)}
+                            </span>
+                        ` : ""}
+                    </div>
+
                     ${renderMobileDateBlock(event)}
 
                     <div class="mobile-title">
                         ${escapeHtml(event.title)}
                     </div>
 
-                    <div class="mobile-meta">
-                        ${escapeHtml(event.category || "Evento")}
-                        ${segmentos ? " • " + escapeHtml(segmentos) : ""}
-                    </div>
+                    ${segmentos ? `
+                        <div class="event-segments">
+                            🎓 ${escapeHtml(segmentos)}
+                        </div>
+                    ` : ""}
 
                     ${event.description ? `
                         <div class="mobile-desc">
@@ -2666,6 +3369,7 @@ function renderMobileEventCard(event, originalIndex, visualIndex){
     `;
 }
 
+
 function renderTimelineMobile(filteredEntries){
 
     const timeline = document.getElementById("timeline");
@@ -2681,9 +3385,19 @@ function renderTimelineMobile(filteredEntries){
         return;
     }
 
+    const focusEvent =
+        getTimelineFocusEvent(
+            filteredEntries.map(item => item.event)
+        );
+
     timeline.innerHTML = filteredEntries
         .map(({event, originalIndex}, visualIndex) =>
-            renderMobileEventCard(event, originalIndex, visualIndex)
+            renderMobileEventCard(
+                event,
+                originalIndex,
+                visualIndex,
+                focusEvent
+            )
         )
         .join("");
 }
@@ -2708,7 +3422,6 @@ function render(){
         return;
     }
 
-    // Garante que o desktop volte ao layout horizontal após resize.
     timeline.className = "timeline";
 
     if(filteredEntries.length === 0){
@@ -2724,13 +3437,22 @@ function render(){
 
     timeline.style.display = "flex";
 
-    // Agrupa somente os eventos filtrados pela mesma data.
+    const focusEvent =
+        getTimelineFocusEvent(
+            filteredEntries.map(item => item.event)
+        );
+
     const groups = [];
     const groupMap = new Map();
 
     filteredEntries.forEach(({event, originalIndex}) => {
+
         if(!groupMap.has(event.date)){
-            const group = { date:event.date, events:[] };
+            const group = {
+                date:event.date,
+                events:[]
+            };
+
             groupMap.set(event.date, group);
             groups.push(group);
         }
@@ -2741,58 +3463,108 @@ function render(){
             .push({event, originalIndex});
     });
 
-    timeline.innerHTML = groups.map(group => `
-        <div class="date-group" data-date="${group.date}">
+    timeline.innerHTML = groups.map(group => {
+
+        const groupHasFocus =
+            group.events.some(({event}) =>
+                isSameEvent(event, focusEvent)
+            );
+
+        return `
             <div
-                class="event-dot"
-                style="--event-color:${group.events[0].event.color || '#35b86b'}">
-            </div>
+                class="date-group ${groupHasFocus ? "date-group-focus" : ""}"
+                data-date="${group.date}">
 
-            <div class="date-events">
-                ${group.events.map(({event, originalIndex}) => `
-                    <div
-                        class="event-card ${event.endDate ? 'period-card' : ''}"
-                        style="--event-color:${event.color || '#35b86b'}">
+                <div
+                    class="event-dot"
+                    style="--event-color:${group.events[0].event.color || '#35b86b'}">
+                </div>
 
-                        ${renderEventDate(event)}
+                <div class="date-events">
 
-                        <div class="event-title">
-                            ${escapeHtml(event.title)}
-                        </div>
+                    ${group.events.map(({event, originalIndex}) => {
 
-                        <div class="event-desc">
-                            <b>${escapeHtml(event.category)}</b> •
-                            <b>${escapeHtml(
-                                (
-                                    event.segments ||
-                                    (event.segment ? [event.segment] : [])
-                                ).join(", ") || "—"
-                            )}</b><br>
+                        const segmentos =
+                            (
+                                event.segments ||
+                                (event.segment ? [event.segment] : [])
+                            ).join(", ");
 
-                            ${escapeHtml(event.description || "")}
-                        </div>
+                        const foco =
+                            isSameEvent(event, focusEvent);
 
-                        ${isAdmin ? `
-                            <div class="event-actions">
-                                <button
-                                    class="small-btn edit-btn"
-                                    onclick="editEvent(${originalIndex})">
-                                    ✏️ Editar
-                                </button>
+                        const focoLabel =
+                            foco
+                                ? getEventFocusLabel(event)
+                                : "";
 
-                                <button
-                                    class="small-btn delete-btn"
-                                    onclick="removeEvent(${originalIndex})">
-                                    🗑 Excluir
-                                </button>
+                        return `
+                            <div
+                                class="
+                                    event-card
+                                    ${event.endDate ? 'period-card' : ''}
+                                    ${foco ? 'event-focus' : ''}
+                                "
+                                style="--event-color:${event.color || '#35b86b'}">
+
+                                <div class="event-card-head">
+
+                                    <span class="event-category-badge">
+                                        ${escapeHtml(event.category || "Evento")}
+                                    </span>
+
+                                    ${focoLabel ? `
+                                        <span class="focus-badge">
+                                            ${escapeHtml(focoLabel)}
+                                        </span>
+                                    ` : ""}
+
+                                </div>
+
+                                ${renderEventDate(event)}
+
+                                <div class="event-title">
+                                    ${escapeHtml(event.title)}
+                                </div>
+
+                                ${segmentos ? `
+                                    <div class="event-segments">
+                                        🎓 ${escapeHtml(segmentos)}
+                                    </div>
+                                ` : ""}
+
+                                ${event.description ? `
+                                    <div class="event-description">
+                                        ${escapeHtml(event.description)}
+                                    </div>
+                                ` : ""}
+
+                                ${isAdmin ? `
+                                    <div class="event-actions">
+
+                                        <button
+                                            class="small-btn edit-btn"
+                                            onclick="editEvent(${originalIndex})">
+                                            ✏️ Editar
+                                        </button>
+
+                                        <button
+                                            class="small-btn delete-btn"
+                                            onclick="removeEvent(${originalIndex})">
+                                            🗑 Excluir
+                                        </button>
+
+                                    </div>
+                                ` : ""}
+
                             </div>
-                        ` : ""}
+                        `;
+                    }).join("")}
 
-                    </div>
-                `).join("")}
+                </div>
             </div>
-        </div>
-    `).join("");
+        `;
+    }).join("");
 
     setTimeout(atualizarBotoesTimeline, 0);
 }
@@ -3203,7 +3975,7 @@ window.addEventListener("resize", function(){
 });
 
     /* ==========================================================
-   BOTÃO MOBILE → LOGIN
+   ACESSO ADMINISTRATIVO - BOTÕES DESKTOP E MOBILE
 ========================================================== */
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -3211,34 +3983,24 @@ document.addEventListener("DOMContentLoaded", function(){
     const mobileLoginBtn =
         document.getElementById("mobileLoginBtn");
 
-    if(!mobileLoginBtn) return;
+    const desktopAdminBtn =
+        document.getElementById("desktopAdminBtn");
 
-    mobileLoginBtn.addEventListener("click", function(){
+    if(mobileLoginBtn){
+        mobileLoginBtn.addEventListener(
+            "click",
+            abrirLoginAdmin
+        );
+    }
 
-        const loginBox =
-            document.getElementById("loginBox");
-
-        if(!loginBox) return;
-
-        loginBox.scrollIntoView({
-            behavior:"smooth",
-            block:"center"
-        });
-
-        setTimeout(() => {
-            const campoUsuario =
-                document.getElementById("adminUser");
-
-            if(campoUsuario){
-                campoUsuario.focus();
-            }
-        }, 700);
-
-    });
+    if(desktopAdminBtn){
+        desktopAdminBtn.addEventListener(
+            "click",
+            abrirLoginAdmin
+        );
+    }
 
 });
-
-
 /* ==========================================================
    GERADOR DE CALENDÁRIO A4
 ========================================================== */
@@ -4518,7 +5280,20 @@ window.addEventListener(
 </script>
 
 <footer class="site-footer">
-    Página desenvolvida por Everton Douglas &amp; CGpt ❤️
+
+    <div class="site-footer-inner">
+        <span class="footer-credit">
+            Página desenvolvida por Everton Douglas &amp; CGpt ❤️
+        </span>
+
+        <button
+            type="button"
+            id="desktopAdminBtn"
+            class="footer-admin-btn">
+            🔐 Administração
+        </button>
+    </div>
+
 </footer>
 
     <button
