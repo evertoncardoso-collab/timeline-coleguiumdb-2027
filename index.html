@@ -3367,16 +3367,35 @@ function formatPrintDate(event){
     const inicio = getPrintDateParts(event.date);
 
     if(!event.endDate){
-        return String(inicio.dia).padStart(2, "0") + "/" + String(inicio.mes).padStart(2, "0");
+        return (
+            String(inicio.dia).padStart(2, "0") +
+            "/" +
+            String(inicio.mes).padStart(2, "0")
+        );
     }
 
     const fim = getPrintDateParts(event.endDate);
 
+    // Mesmo mês: 28 à 30/01
+    if(
+        inicio.ano === fim.ano &&
+        inicio.mes === fim.mes
+    ){
+        return (
+            String(inicio.dia).padStart(2, "0") +
+            " à " +
+            String(fim.dia).padStart(2, "0") +
+            "/" +
+            String(fim.mes).padStart(2, "0")
+        );
+    }
+
+    // Mudou de mês: 30/01 à 02/02
     return (
         String(inicio.dia).padStart(2, "0") +
         "/" +
         String(inicio.mes).padStart(2, "0") +
-        "–" +
+        " à " +
         String(fim.dia).padStart(2, "0") +
         "/" +
         String(fim.mes).padStart(2, "0")
@@ -4377,29 +4396,37 @@ body{
 }
 
 
-/* No calendário completo, meses cheios continuam compactos.
-   Estas regras ficam depois das regras gerais para terem prioridade. */
-.annual.print-month.crowded .print-month-legend,
-.annual.print-month.very-crowded .print-month-legend{
-    column-gap:1mm;
-    row-gap:.12mm;
-    padding:.35mm .7mm .5mm;
+/* ==========================================================
+   PADRONIZAÇÃO DO MODO ANUAL
+   Meses cheios usam a mesma tipografia dos demais meses.
+========================================================== */
+
+.annual .print-month.crowded .print-month-legend,
+.annual .print-month.very-crowded .print-month-legend{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    column-gap:1.2mm;
+    row-gap:.22mm;
+    padding:.45mm .8mm .65mm;
 }
 
-.annual.print-month.crowded .print-legend-line{
-    font-size:3.85pt;
-    line-height:1;
+.annual .print-month.crowded .print-legend-line,
+.annual .print-month.very-crowded .print-legend-line{
+    font-size:4.05pt;
+    line-height:1.02;
 }
 
-.annual.print-month.very-crowded .print-legend-line{
-    font-size:3.6pt;
-    line-height:.98;
+.annual .print-month.crowded .print-legend-marker,
+.annual .print-month.very-crowded .print-legend-marker{
+    width:1.15mm;
+    height:1.15mm;
+    margin-top:.12mm;
 }
 
-.annual.print-month.crowded .print-legend-marker,
-.annual.print-month.very-crowded .print-legend-marker{
-    width:1mm;
-    height:1mm;
+.annual .print-month.crowded .print-legend-meta,
+.annual .print-month.crowded .print-legend-desc,
+.annual .print-month.very-crowded .print-legend-meta,
+.annual .print-month.very-crowded .print-legend-desc{
+    display:none;
 }
 
 
