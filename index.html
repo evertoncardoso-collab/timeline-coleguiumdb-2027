@@ -4228,32 +4228,52 @@ body{
 /* Mais espaço para a legenda */
 .annual .print-month-legend{
     flex:1;
+    min-height:0;
 
-    gap:.35mm;
+    /* Só no calendário anual:
+       divide a legenda em duas colunas */
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-auto-rows:min-content;
+    align-content:start;
+
+    column-gap:1.2mm;
+    row-gap:.22mm;
 
     padding:
-        .6mm
-        1mm
-        .8mm;
+        .45mm
+        .8mm
+        .65mm;
 }
 
 
-/* Legendas bem compactas,
-   mas ainda legíveis */
+/* Legendas ainda mais compactas no modo anual */
 .annual .print-legend-item{
-    gap:.7mm;
+    min-width:0;
+    gap:.45mm;
+    line-height:1.02;
 }
 
 .annual .print-legend-marker{
-    width:1.5mm;
-    height:1.5mm;
+    width:1.15mm;
+    height:1.15mm;
 
-    margin-top:.15mm;
+    margin-top:.12mm;
+}
+
+.annual .print-legend-content{
+    min-width:0;
 }
 
 .annual .print-legend-line{
-    font-size:4.8pt;
-    line-height:1.08;
+    font-size:4.05pt;
+    line-height:1.02;
+    overflow-wrap:anywhere;
+}
+
+.annual .print-legend-line strong{
+    margin-right:.35mm;
+    white-space:nowrap;
 }
 
 .annual .print-legend-meta,
@@ -4354,6 +4374,32 @@ body{
 .print-month.very-crowded .print-legend-meta,
 .print-month.very-crowded .print-legend-desc{
     display:none;
+}
+
+
+/* No calendário completo, meses cheios continuam compactos.
+   Estas regras ficam depois das regras gerais para terem prioridade. */
+.annual.print-month.crowded .print-month-legend,
+.annual.print-month.very-crowded .print-month-legend{
+    column-gap:1mm;
+    row-gap:.12mm;
+    padding:.35mm .7mm .5mm;
+}
+
+.annual.print-month.crowded .print-legend-line{
+    font-size:3.85pt;
+    line-height:1;
+}
+
+.annual.print-month.very-crowded .print-legend-line{
+    font-size:3.6pt;
+    line-height:.98;
+}
+
+.annual.print-month.crowded .print-legend-marker,
+.annual.print-month.very-crowded .print-legend-marker{
+    width:1mm;
+    height:1mm;
 }
 
 
